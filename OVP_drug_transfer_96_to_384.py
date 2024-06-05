@@ -5,8 +5,8 @@ import pandas as pd
 metadata = {
     "protocolName": "OVP Drug Transfer to 384-well Cell Plate",
     "description": """This protocol is used to transfer drugs from a
-     pre-prepared drug plate to a 384 well plate containing patient cells 
-     (in 45 ul of media) in a randomized layout.""",
+     pre-prepared 96-well drug plate to a 384 well plate containing patient
+     cells (in 45 ul of media) in a randomized layout.""",
     "author": "Adrian Tschan"
     }
 
@@ -17,6 +17,7 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
 def run(protocol: protocol_api.ProtocolContext):
 
     # load labware
+    # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 1)
     drug_plate = protocol.load_labware("nest_96_wellplate_200ul_flat", 2)
     cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 3)
@@ -40,15 +41,35 @@ def run(protocol: protocol_api.ProtocolContext):
 
 
     # initialize pipette
-    left_pipette = protocol.load_instrument("p20_single", "left",
+    left_pipette = protocol.load_instrument("p20_single_gen2", "left",
                                             tip_racks=[tips])
 
     # load the drug layout on drug master plate and final 384-well plate
-    drug_layout_96 = pd.read_csv(r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_layout_v1.0.csv")
+    drug_layout_96 = pd.read_csv(r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_metadata_v1.0.csv")
     drug_layout_384 = pd.read_csv(r"K:\projects\OV_Precision\documents\plate_layout\plate_metadata_v1.0.csv")
 
+    # for now, only 1 patient
+    drug_layout_384 = drug_layout_384.loc[
+        drug_layout_384["sample"] != "patient_2"]
 
+    for i, drug in drug_layout_96.iterrows():
+        # assemble name of source well (opentrons take A1 instead of A01)
+        source_well = drug.row + str(drug.col)
+        # collect destination wells
+        dest_wells = drug_layout_384.loc[
+            drug_layout_384.condition == drug.condition]
+        # put together names for destination wells
+        dest_wells = [well.row + str(well.col) for i, well
+                      in dest_wells.iterrows()]
 
-    # transfer diluent from reservoir to plate
-    left_pipette.transfer(100, reservoir["A1"], plate.wells(),
-                          mix_after=(3, 50))
+        destinations = [cell_plate[well] for well in dest_wells]
+
+        print(f"Distributing {drug.condition} from well {source_well} "
+              f"to wells {dest_wells} on 384-well cell plate")
+
+        # distribute from source well to dest wells
+        left_pipette.distribute(volume=5,
+                                source=drug_plate[source_well],
+                                dest=destinations,
+                                disposal_volume=5)
+
