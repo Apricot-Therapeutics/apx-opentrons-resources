@@ -4,7 +4,7 @@ from sys import platform
 
 # metadata
 metadata = {
-    "protocolName": "OVP Drug Transfer to 384-well Cell Plate",
+    "protocolName": "OVP Drug Transfer to 384-well Cell Plate (single patient)",
     "description": """This protocol is used to transfer drugs from a
      pre-prepared 96-well drug plate to a 384 well plate containing patient
      cells (in 45 ul of media) in a randomized layout.""",
