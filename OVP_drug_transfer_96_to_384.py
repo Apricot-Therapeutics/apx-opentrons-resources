@@ -19,8 +19,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 1)
-    drug_plate = protocol.load_labware("nest_96_wellplate_200ul_flat", 2)
-    cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 3)
+    drug_plate = protocol.load_labware("thermoscientific_96_wellplate_1300ul", 5)
+    cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # optional: set liquids
     sample = protocol.define_liquid(name="sample", display_color="#1c03fc",
@@ -50,7 +50,9 @@ def run(protocol: protocol_api.ProtocolContext):
         well.load_liquid(liquid=sample, volume=45)
 
     # initialize pipette
-    left_pipette = protocol.load_instrument("p20_single_gen2", "left",
+    left_pipette = protocol.load_instrument("p300_multi_gen2", "left",
+                                            tip_racks=[tips])
+    right_pipette = protocol.load_instrument("p20_single_gen2", "left",
                                             tip_racks=[tips])
 
     for i, drug in drug_layout_96.iterrows():
@@ -69,8 +71,8 @@ def run(protocol: protocol_api.ProtocolContext):
               f"to wells {dest_wells} on 384-well cell plate")
 
         # distribute from source well to dest wells
-        left_pipette.distribute(volume=5,
-                                source=drug_plate[source_well],
-                                dest=destinations,
-                                disposal_volume=5)
+        right_pipette.distribute(volume=5,
+                                 source=drug_plate[source_well],
+                                 dest=destinations,
+                                 disposal_volume=5)
 
