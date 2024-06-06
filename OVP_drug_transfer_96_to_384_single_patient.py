@@ -1,5 +1,6 @@
 from opentrons import protocol_api
 import pandas as pd
+from sys import platform
 
 # metadata
 metadata = {
@@ -34,11 +35,15 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # load some metadata we need later
 
-    # load the drug layout on drug master plate and final 384-well plate
-    drug_plate_layout = pd.read_csv(
-        r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\drug_plate_metadata_v1.0.csv")
-    cell_plate_layout = pd.read_csv(
-        r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\plate_metadata_v1.0.csv")
+
+    if platform == "win32":
+        # load the drug layout on drug master plate and final 384-well plate
+        drug_plate_layout = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\single_patient_plate\drug_plate_metadata_v1.0.csv")
+        cell_plate_layout = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\single_patient_plate\plate_metadata_v1.0.csv")
+    elif platform == "linux":
+        # load the drug layout on drug master plate and final 384-well plate
+        drug_plate_layout = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.0.csv")
+        cell_plate_layout = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.0.csv")
 
     # for now, only 1 patient
     cell_plate_layout = cell_plate_layout.loc[
