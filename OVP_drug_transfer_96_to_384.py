@@ -28,29 +28,30 @@ def run(protocol: protocol_api.ProtocolContext):
     drugs = protocol.define_liquid(name="drugs", display_color="#fcba03",
                                  description="drugs to be transferred")
 
-    # load drugs into 96-well plate
-    for well in drug_plate.wells():
-        well.load_liquid(liquid=drugs, volume=1000)
-
-    # load sample into 384-well plate
-    for i_row, row in enumerate(cell_plate.rows()):
-        if i_row > 1 and i_row < 14:
-            for i_well, well in enumerate(row):
-                if i_well > 1 and i_well < 23:
-                    well.load_liquid(liquid=sample, volume=45)
-
-
-    # initialize pipette
-    left_pipette = protocol.load_instrument("p20_single_gen2", "left",
-                                            tip_racks=[tips])
+    # load some metadata we need later
 
     # load the drug layout on drug master plate and final 384-well plate
-    drug_layout_96 = pd.read_csv(r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_metadata_v1.0.csv")
-    drug_layout_384 = pd.read_csv(r"K:\projects\OV_Precision\documents\plate_layout\plate_metadata_v1.0.csv")
+    drug_layout_96 = pd.read_csv(
+        r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_metadata_v1.0.csv")
+    drug_layout_384 = pd.read_csv(
+        r"K:\projects\OV_Precision\documents\plate_layout\plate_metadata_v1.0.csv")
 
     # for now, only 1 patient
     drug_layout_384 = drug_layout_384.loc[
         drug_layout_384["sample"] != "patient_2"]
+
+    # load drugs into 96-well plate
+    for i, well in drug_layout.iterrows():
+        well = drug_plate[well.row + str(well.col)]
+        well.load_liquid(liquid=drugs, volume=1000)
+
+    for i, well in drug_layout_384.iterrows():
+        well = cell_plate[well.row + str(well.col)]
+        well.load_liquid(liquid=sample, volume=45)
+
+    # initialize pipette
+    left_pipette = protocol.load_instrument("p20_single_gen2", "left",
+                                            tip_racks=[tips])
 
     for i, drug in drug_layout_96.iterrows():
         # assemble name of source well (opentrons take A1 instead of A01)
