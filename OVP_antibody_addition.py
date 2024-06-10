@@ -90,4 +90,3 @@ def run(protocol: protocol_api.ProtocolContext):
                                  source=drug_plate[source_well],
                                  dest=destinations,
                                  disposal_volume=5)
-
