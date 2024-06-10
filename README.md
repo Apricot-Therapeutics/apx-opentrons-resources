@@ -25,7 +25,7 @@ if platform == "win32":
         # load the layout from local path
         plate_layout = pd.read_csv("/local/path/to/csv")
 
-    elif platform == "linux":
+elif platform == "linux":
         # load layout from location on OT-2 computer
         plate_layout = pd.read_csv("/OT-2/path/to/csv")
 ```
