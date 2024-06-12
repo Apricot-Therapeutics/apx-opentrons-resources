@@ -1,6 +1,34 @@
 from opentrons import protocol_api
+from opentrons.protocol_api import Well
 import pandas as pd
 from sys import platform
+import numpy as np
+
+# helper function to distribute with more flexibility
+def distribute(volume: int,
+               source: Well,
+               dest: list[Well],
+               delay: int,
+               residual_volume: int,
+               pipette,
+               protocol: protocol_api.ProtocolContext):
+
+    # iterate over destination sublists and aspirate
+    pipette.pick_up_tip()     
+    pipette.aspirate(
+        volume=len(dest)*volume,
+        location=source,
+    )
+    # iterate over each destination and dispense 5 ul
+    for destination in dest:
+        pipette.dispense(
+            volume=volume,
+            location=destination,
+        )
+        # short delay
+        protocol.delay(seconds=0.5)
+    # drop tip
+    pipette.drop_tip()
 
 # metadata
 metadata = {
@@ -20,7 +48,7 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 1)
-    #drug_plate = protocol.load_labware("thermoscientific_96_wellplate_1300ul", 5)
+    #drug_plate = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", 5)
     #cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # for local testing
@@ -36,12 +64,12 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv(r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_metadata_v1.2.csv")
-        cell_plate_metadata = pd.read_csv(r"K:\projects\OV_Precision\documents\plate_layout\plate_metadata_v1.1.csv")
+        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\drug_plate_metadata_v1.2.csv")
+        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\plate_metadata_v1.1.csv")
     elif platform == "linux":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.0.csv")
-        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.0.csv")
+        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.2.csv")
+        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.1.csv")
 
     # for now, only 1 patient
     cell_plate_metadata = cell_plate_metadata.loc[
@@ -57,16 +85,16 @@ def run(protocol: protocol_api.ProtocolContext):
         well.load_liquid(liquid=sample, volume=45)
 
     # initialize pipette
-    left_pipette = protocol.load_instrument("p300_multi_gen2", "left",
+    left_pipette = protocol.load_instrument("p20_multi_gen2", "left",
                                             tip_racks=[tips])
     right_pipette = protocol.load_instrument("p20_single_gen2", "right",
                                             tip_racks=[tips])
 
     # set well clearance of pipettes
     left_pipette.well_bottom_clearance.aspirate = 0.5
-    left_pipette.well_bottom_clearance.dispense = 1.5
+    left_pipette.well_bottom_clearance.dispense = 2
     right_pipette.well_bottom_clearance.aspirate = 0.5
-    right_pipette.well_bottom_clearance.dispense = 1.5
+    right_pipette.well_bottom_clearance.dispense = 2
 
     # get unique names of drugs and whether they are combinations
     drug_list = cell_plate_metadata[["condition", "combination"]]
@@ -92,17 +120,23 @@ def run(protocol: protocol_api.ProtocolContext):
         # put together names for destination wells
         dest_wells = [well.row + str(well.col) for i, well
                       in dest_wells.iterrows()]
-
+        
         destinations = [cell_plate[well] for well in dest_wells]
-
+        # chunk destinations in order to change tip after each aspiration
+        chunked_destinations = np.array_split(destinations, len(destinations)/3)
         print(f"Distributing {drug.condition} from well {source_well} "
               f"to wells {dest_wells} on 384-well cell plate")
-
-        # distribute from source well to dest wells
-        right_pipette.distribute(volume=5,
-                                 source=drug_plate[source_well],
-                                 dest=destinations,
-                                 disposal_volume=5)
+        # iterate over destination sublists and aspirate
+        for destination_list in chunked_destinations:
+            distribute(
+                volume=5,
+                source=drug_plate[source_well],
+                dest=destination_list,
+                delay=0.5,
+                pipette=right_pipette,
+                residual_volume=5,
+                protocol=protocol,
+            )
 
 
     # distribute combination drugs
@@ -133,21 +167,25 @@ def run(protocol: protocol_api.ProtocolContext):
                       in dest_wells.iterrows()]
 
         destinations = [cell_plate[well] for well in dest_wells]
-
+        # chunk destinations in order to change tip after each aspiration
+        chunked_destinations = np.array_split(destinations, len(destinations)/3)
         print(f"Distributing {drug.condition} from well {source_well_1}"
-              f" and {source_well_2} to wells {dest_wells} on "
-              f"384-well cell plate")
+                    f" and {source_well_2} to wells {dest_wells} on "
+                    f"384-well cell plate")
+        
+        # iterate over destination sublists and aspirate
+        for destination_list in chunked_destinations:
+            distribute(
+                volume=2.5,
+                source=drug_plate[source_well],
+                dest=destination_list,
+                delay=0.5,
+                pipette=right_pipette,
+                residual_volume=5,
+                protocol=protocol,
+            )
 
-        # distribute from source well 1 to dest wells
-        right_pipette.distribute(volume=2.5,
-                                 source=drug_plate[source_well_1],
-                                 dest=destinations,
-                                 disposal_volume=5)
-        # distribute from source well 2 to dest wells
-        right_pipette.distribute(volume=2.5,
-                                 source=drug_plate[source_well_2],
-                                 dest=destinations,
-                                 disposal_volume=5)
+    
 
 
 
