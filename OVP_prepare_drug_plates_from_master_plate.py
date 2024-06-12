@@ -19,16 +19,16 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # load labware
     # TO-DO: change labware to match actual labware used
-    tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 1)
-    #drug_master_plate = protocol.load_labware("thermoscientific_96_wellplate_1300ul", 2)
-    #drug_plates = [protocol.load_labware("thermoscientific_96_wellplate_1300ul", i)
-    #               for i in range(3, 12)]
+    tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 7)
+    drug_master_plate = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", 8)
+    drug_plates = [protocol.load_labware("greinermasterblock_96_wellplate_2000ul", i)
+                   for i in range(1, 7)]
 
     # for local testing
-    drug_master_plate = protocol.load_labware(
-        "nest_96_wellplate_200ul_flat", 2)
-    drug_plates = [protocol.load_labware("nest_96_wellplate_200ul_flat", i)
-                   for i in range(3, 12)]
+    #drug_master_plate = protocol.load_labware(
+    #    "nest_96_wellplate_200ul_flat", 2)
+    #drug_plates = [protocol.load_labware("nest_96_wellplate_200ul_flat", i)
+    #               for i in range(3, 12)]
 
 
     # optional: set liquids
@@ -38,12 +38,12 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate
-        #drug_plate_layout = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\single_patient_plate\drug_plate_metadata_v1.0.csv")
-        drug_plate_layout = pd.read_csv(
-            r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_metadata_v1.1.csv")
+        drug_plate_layout = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\drug_plate_metadata_v1.1.csv")
+        #drug_plate_layout = pd.read_csv(
+        #    r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_metadata_v1.1.csv")
     elif platform == "linux":
         # load the drug layout on drug master plate
-        drug_plate_layout = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.0.csv")
+        drug_plate_layout = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.1.csv")
 
 
     # load drugs into 96-well plate
@@ -54,38 +54,60 @@ def run(protocol: protocol_api.ProtocolContext):
     # initialize pipette
     left_pipette = protocol.load_instrument("p20_multi_gen2", "left",
                                             tip_racks=[tips])
-    right_pipette = protocol.load_instrument("p1000_single_gen2", "right",
+    right_pipette = protocol.load_instrument("p20_single_gen2", "right",
                                             tip_racks=[tips])
 
     # set well clearance of pipettes
-    left_pipette.well_bottom_clearance.aspirate = 1.5
-    left_pipette.well_bottom_clearance.dispense = 1.5
-    right_pipette.well_bottom_clearance.aspirate = 1.5
-    right_pipette.well_bottom_clearance.dispense = 1.5
+    left_pipette.well_bottom_clearance.aspirate = 0.5
+    left_pipette.well_bottom_clearance.dispense = 0.5
+    right_pipette.well_bottom_clearance.aspirate = 0.5
+    right_pipette.well_bottom_clearance.dispense = 0.5
 
     for col in drug_plate_layout["col"].unique():
-
+        # pick up a column of tips
+        left_pipette.pick_up_tip()
         # get source and destination wells
         source_well = "A" + str(col)
         destination_well = source_well
 
-        for i in drug_plates % 3:
-        # distribute from source well to dest wells
-        left_pipette.pick_up_tip()
+        # pre-wet
         left_pipette.aspirate(volume=20,
+                            location=drug_master_plate[source_well],
+                            rate=0.5)
+        left_pipette.dispense(volume=20,
                               location=drug_master_plate[source_well],
                               rate=0.5)
 
+        # aspirate 20 ul from source to distribute
+        left_pipette.aspirate(volume=20,
+                            location=drug_master_plate[source_well],
+                            rate=0.5)
+        # short delay to allow viscous liquid to settle
+        protocol.delay(seconds=1.0)
+        # tip touch with low radius and -25 mm offset from top of well
+        left_pipette.touch_tip(radius=0.4,
+                                v_offset=-25)
 
-            left_pipette.dispense(volume=5,
+        for drug_plate in drug_plates:
+            left_pipette.dispense(volume=3,
                                   location=drug_plate[destination_well],
                                   rate=0.5)
+            # short delay to allow viscous liquid to settle
+            protocol.delay(seconds=1.0)
+            # tip touch with low radius and -25 mm offset from top of well
+            left_pipette.touch_tip(radius=0.4,
+                                    v_offset=-25)
+            
+        # some weird behaviour with blow_out: when blowing out into the liquid, the next round
+        # does not aspirate enough. Possibly because of an airbubble that gets deposited.
+        # It's fine however if the blowout does not go into the liquid. For now,
+        # we skip the blowout.
+        
+        #left_pipette.blow_out(location=drug_master_plate['A1'])
+        #left_pipette.touch_tip(radius=0.5,
+        #                            v_offset=-25)
+                              
+        # drop the tips with remaining 2 ul into trash
+        left_pipette.drop_tip()
 
-
-        left_pipette.distribute(volume=5,
-                                source=drug_master_plate[source_well],
-                                dest=[drug_plate[destination_well] for drug_plate in drug_plates],
-                                disposal_volume=5,
-                                touch_tip=True,
-                                )
 
