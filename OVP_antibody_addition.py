@@ -38,7 +38,7 @@ def distribute(volume: int,
 
 # metadata
 metadata = {
-    "protocolName": "OVP Drug Transfer to 384-well Cell Plate (single patient)",
+    "protocolName": "OVP Primary Antibody addition (single patient)",
     "description": """This protocol is used to transfer drugs from a
      pre-prepared 96-well drug plate to a 384 well plate containing patient
      cells (in 45 ul of media) in a randomized layout.""",
@@ -54,12 +54,12 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 1)
-    #antibody_plate = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", 5)
-    #cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
+    antibody_plate = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", 5)
+    cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # for local testing
-    antibody_plate = protocol.load_labware("nest_96_wellplate_200ul_flat", 2)
-    cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 3)
+    #antibody_plate = protocol.load_labware("nest_96_wellplate_200ul_flat", 2)
+    #cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 3)
 
     # optional: set liquids
     sample = protocol.define_liquid(name="sample", display_color="#1c03fc",
