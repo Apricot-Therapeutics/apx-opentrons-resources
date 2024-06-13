@@ -26,9 +26,9 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # for local testing
     #drug_master_plate = protocol.load_labware(
-    #    "nest_96_wellplate_200ul_flat", 2)
+    #    "nest_96_wellplate_200ul_flat", 8)
     #drug_plates = [protocol.load_labware("nest_96_wellplate_200ul_flat", i)
-    #               for i in range(3, 12)]
+    #               for i in range(1, 7)]
 
 
     # optional: set liquids
@@ -38,12 +38,12 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate
-        drug_plate_layout = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\drug_plate_metadata_v1.1.csv")
+        drug_plate_layout = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v1.3.csv")
         #drug_plate_layout = pd.read_csv(
         #    r"K:\projects\OV_Precision\documents\plate_layout\drug_plate_metadata_v1.1.csv")
     elif platform == "linux":
         # load the drug layout on drug master plate
-        drug_plate_layout = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.1.csv")
+        drug_plate_layout = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.3.csv")
 
 
     # load drugs into 96-well plate

@@ -76,12 +76,12 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\drug_plate_metadata_v1.2.csv")
-        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\plate_metadata_v1.1.csv")
+        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\drug_plate_metadata_v1.3.csv")
+        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\Apricot\OVP\metadata\plate_metadata_v1.2.csv")
     elif platform == "linux":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.2.csv")
-        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.1.csv")
+        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.3.csv")
+        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.2.csv")
 
     # for now, only 1 patient
     cell_plate_metadata = cell_plate_metadata.loc[
