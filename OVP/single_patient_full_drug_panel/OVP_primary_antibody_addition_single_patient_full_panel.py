@@ -15,26 +15,33 @@ def distribute(volume: int,
                protocol: protocol_api.ProtocolContext,
                blow_out_height_from_bottom: int,
                blow_out_location: Optional[Well] = None,):
+    
+    # based on the volume, calculate how often can be pipetted
+    n_pipetting_steps = np.floor(20/(volume - residual_volume)) # TO-DO: max volume of pipette
+    
+    # chunk up the destinations
+    chunked_dest = np.array_split(dest, np.ceil(len(dest)/n_pipetting_steps))
 
-    # iterate over destination sublists and aspirate
-    pipette.pick_up_tip()     
-    pipette.aspirate(
-        volume=len(dest)*volume + residual_volume, 
-        location=source,
-    )
-    # iterate over each destination and dispense 5 ul
-    for destination in dest:
-        pipette.dispense(
-            volume=volume,
-            location=destination,
+    for sub_list in chunked_dest:
+        # iterate over destination sublists and aspirate
+        pipette.pick_up_tip()     
+        pipette.aspirate(
+            volume=len(sub_list)*volume + residual_volume, 
+            location=source,
         )
-        # short delay
-        protocol.delay(seconds=delay)
+        # iterate over each destination and dispense 5 ul
+        for destination in sub_list:
+            pipette.dispense(
+                volume=volume,
+                location=destination,
+            )
+            # short delay
+            protocol.delay(seconds=delay)
 
-    if blow_out_location is not None:
-        pipette.blow_out(location=blow_out_location.bottom(z=blow_out_height_from_bottom))
-    # drop tip
-    pipette.drop_tip()
+        if blow_out_location is not None:
+            pipette.blow_out(location=blow_out_location.bottom(z=blow_out_height_from_bottom))
+        # drop tip
+        pipette.drop_tip()
 
 # metadata
 metadata = {
@@ -102,19 +109,15 @@ def run(protocol: protocol_api.ProtocolContext):
     source_well = 'A1'
     dest_wells = ['A' + str(col) for col in cell_plate_metadata.col.unique()]
     destinations = [cell_plate[well] for well in dest_wells]
-    print(destinations)
-    chunked_destinations = np.array_split(destinations, np.ceil(len(destinations)/3))
-    print(len(chunked_destinations[0]))
 
-    for dest in chunked_destinations:
-        distribute(
-            volume=5,
-            source=antibody_plate[source_well],
-            dest=dest,
-            delay=1.0,
-            residual_volume=2.0,
-            pipette=left_pipette,
-            protocol=protocol,
-            blow_out_location=antibody_plate[source_well],
-            blow_out_height_from_bottom=1,
-        )
+    distribute(
+        volume=5,
+        source=antibody_plate[source_well],
+        dest=destinations,
+        delay=1.0,
+        residual_volume=2.0,
+        pipette=left_pipette,
+        protocol=protocol,
+        blow_out_location=antibody_plate[source_well],
+        blow_out_height_from_bottom=1,
+    )

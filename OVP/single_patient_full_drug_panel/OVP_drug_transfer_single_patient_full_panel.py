@@ -11,24 +11,36 @@ def distribute(volume: int,
                delay: int,
                residual_volume: int,
                pipette,
-               protocol: protocol_api.ProtocolContext):
+               protocol: protocol_api.ProtocolContext,
+               blow_out_height_from_bottom: int,
+               blow_out_location: Optional[Well] = None,):
+    
+    # based on the volume, calculate how often can be pipetted
+    n_pipetting_steps = np.floor(20/(volume - residual_volume)) # TO-DO: max volume of pipette
+    
+    # chunk up the destinations
+    chunked_dest = np.array_split(dest, np.ceil(len(dest)/n_pipetting_steps))
 
-    # iterate over destination sublists and aspirate
-    pipette.pick_up_tip()     
-    pipette.aspirate(
-        volume=len(dest)*volume,
-        location=source,
-    )
-    # iterate over each destination and dispense 5 ul
-    for destination in dest:
-        pipette.dispense(
-            volume=volume,
-            location=destination,
+    for sub_list in chunked_dest:
+        # iterate over destination sublists and aspirate
+        pipette.pick_up_tip()     
+        pipette.aspirate(
+            volume=len(sub_list)*volume + residual_volume, 
+            location=source,
         )
-        # short delay
-        protocol.delay(seconds=0.5)
-    # drop tip
-    pipette.drop_tip()
+        # iterate over each destination and dispense 5 ul
+        for destination in sub_list:
+            pipette.dispense(
+                volume=volume,
+                location=destination,
+            )
+            # short delay
+            protocol.delay(seconds=delay)
+
+        if blow_out_location is not None:
+            pipette.blow_out(location=blow_out_location.bottom(z=blow_out_height_from_bottom))
+        # drop tip
+        pipette.drop_tip()
 
 # metadata
 metadata = {
@@ -122,21 +134,18 @@ def run(protocol: protocol_api.ProtocolContext):
                       in dest_wells.iterrows()]
         
         destinations = [cell_plate[well] for well in dest_wells]
-        # chunk destinations in order to change tip after each aspiration
-        chunked_destinations = np.array_split(destinations, len(destinations)/3)
         print(f"Distributing {drug.condition} from well {source_well} "
               f"to wells {dest_wells} on 384-well cell plate")
-        # iterate over destination sublists and aspirate
-        for destination_list in chunked_destinations:
-            distribute(
-                volume=5,
-                source=drug_plate[source_well],
-                dest=destination_list,
-                delay=0.5,
-                pipette=right_pipette,
-                residual_volume=5,
-                protocol=protocol,
-            )
+
+        distribute(
+            volume=5,
+            source=drug_plate[source_well],
+            dest=destinations,
+            delay=0.5,
+            pipette=right_pipette,
+            residual_volume=5,
+            protocol=protocol,
+        )
 
 
     # distribute combination drugs
