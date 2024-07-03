@@ -104,9 +104,9 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # set well clearance of pipettes
     left_pipette.well_bottom_clearance.aspirate = 0.5
-    left_pipette.well_bottom_clearance.dispense = 2
+    left_pipette.well_bottom_clearance.dispense = 3
     right_pipette.well_bottom_clearance.aspirate = 0.5
-    right_pipette.well_bottom_clearance.dispense = 2
+    right_pipette.well_bottom_clearance.dispense = 3
 
     # get unique names of drugs and whether they are combinations
     drug_list = cell_plate_metadata[["condition", "combination"]]

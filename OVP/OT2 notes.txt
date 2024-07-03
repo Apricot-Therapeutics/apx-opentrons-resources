@@ -1,0 +1,7 @@
+At 1.5mm residual volume is 12-15 ul.
+
+At 3.2mm residual volume is 25-30 ul.
+
+residual volume in nested 12c well- 350-400 ul
+
+residual volume in 96 deep well V botomm Greiner (2mL well volume): 20ul per well; 120 ul for 6 wells
