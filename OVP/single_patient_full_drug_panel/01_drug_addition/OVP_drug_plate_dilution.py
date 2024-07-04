@@ -12,7 +12,24 @@ metadata = {
     }
 
 # requirements
-requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
+requirements = {"robotType": "OT-2", "apiLevel": "2.18"}
+
+def add_parameters(parameters: protocol_api.Parameters):
+
+    parameters.add_str(
+    variable_name="right_pipette",
+    display_name="right pipette",
+    description="Pipette that is mounted on the right holder. This pipette is not used in this protocol, but you can change it here in case a different pipette is currently on the OT-2.",
+    choices=[
+        {"display_name": "1-Channel 20 µL", "value": "p20_single_gen2"},
+        {"display_name": "8-Channel 20 µL", "value": "p20_multi_gen2"},
+        {"display_name": "1-Channel 300 µL", "value": "p300_single_gen2"},
+        {"display_name": "8-Channel 300 µL", "value": "p300_multi_gen2"},
+        {"display_name": "1-Channel 1000 µL", "value": "p1000_single_gen2"},
+    ],
+    default="p20_single_gen2"
+    )
+    
 
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
@@ -53,7 +70,7 @@ def run(protocol: protocol_api.ProtocolContext):
     # initialize pipette
     left_pipette = protocol.load_instrument("p300_multi_gen2", "left",
                                             tip_racks=[tips])
-    right_pipette = protocol.load_instrument("p20_single_gen2", "right",
+    right_pipette = protocol.load_instrument(protocol.params.right_pipette, "right",
                                             tip_racks=[tips])
 
     # set well clearance of pipettes
