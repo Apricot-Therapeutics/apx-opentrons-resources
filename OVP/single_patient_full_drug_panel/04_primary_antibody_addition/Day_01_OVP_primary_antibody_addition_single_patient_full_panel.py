@@ -10,15 +10,15 @@ import itertools
 def distribute(volume: int,
                source: Well,
                dest: list[Well],
-               aspirate_delay: float,
-               dispense_delay: float,
-               residual_volume: int,
                pipette,
                protocol: protocol_api.ProtocolContext,
-               residual_dispense_height_from_bottom: int,
-               touch_tip: bool,
-               touch_tip_radius: float,
-               touch_tip_v_offset: float,
+               aspirate_delay: float = 0,
+               dispense_delay: float = 0,
+               residual_volume: int = 0,
+               residual_dispense_height_from_bottom: Optional[int] = None,
+               touch_tip_radius: Optional[float] = None,
+               touch_tip_v_offset: Optional[float] = None,
+               touch_tip: bool = False,
                residual_dispense_location: Optional[Well] = None,
                n_mix: Optional[int] = None,
                aspirate_rate: float = 1.0,
@@ -68,7 +68,6 @@ def distribute(volume: int,
             pipette.dispense(location=residual_dispense_location.bottom(z=residual_dispense_height_from_bottom))
         # drop tip
         pipette.drop_tip()
-
 # metadata
 metadata = {
     "protocolName": "OVP Primary Antibody addition (single patient)",
