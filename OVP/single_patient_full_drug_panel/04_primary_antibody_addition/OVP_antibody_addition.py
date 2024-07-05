@@ -65,7 +65,8 @@ def distribute(volume: int,
                                   v_offset=touch_tip_v_offset)
 
         if residual_dispense_location is not None:
-            pipette.dispense(location=residual_dispense_location.bottom(z=residual_dispense_height_from_bottom))
+            pipette.dispense(location=residual_dispense_location.bottom(
+                z=residual_dispense_height_from_bottom))
         # drop tip
         pipette.drop_tip()
 # metadata
