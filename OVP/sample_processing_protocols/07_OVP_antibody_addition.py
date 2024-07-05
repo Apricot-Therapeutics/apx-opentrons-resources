@@ -10,15 +10,15 @@ import itertools
 def distribute(volume: int,
                source: Well,
                dest: list[Well],
-               aspirate_delay: float,
-               dispense_delay: float,
-               residual_volume: int,
                pipette,
                protocol: protocol_api.ProtocolContext,
-               residual_dispense_height_from_bottom: int,
-               touch_tip: bool,
-               touch_tip_radius: float,
-               touch_tip_v_offset: float,
+               aspirate_delay: float = 0,
+               dispense_delay: float = 0,
+               residual_volume: int = 0,
+               residual_dispense_height_from_bottom: Optional[int] = None,
+               touch_tip_radius: Optional[float] = None,
+               touch_tip_v_offset: Optional[float] = None,
+               touch_tip: bool = False,
                residual_dispense_location: Optional[Well] = None,
                n_mix: Optional[int] = None,
                aspirate_rate: float = 1.0,
@@ -65,21 +65,61 @@ def distribute(volume: int,
                                   v_offset=touch_tip_v_offset)
 
         if residual_dispense_location is not None:
-            pipette.dispense(location=residual_dispense_location.bottom(z=residual_dispense_height_from_bottom))
+            pipette.dispense(location=residual_dispense_location.bottom(
+                z=residual_dispense_height_from_bottom))
         # drop tip
         pipette.drop_tip()
-
 # metadata
 metadata = {
-    "protocolName": "OVP Primary Antibody addition (single patient)",
-    "description": """This protocol is used to transfer drugs from a
-     pre-prepared 96-well drug plate to a 384 well plate containing patient
-     cells (in 45 ul of media) in a randomized layout.""",
+    "protocolName": "OVP Antibody Addition",
+    "description": """This protocol is used to transfer antibodies from a
+     pre-prepared 96-well plate to a 384 well plate containing patient
+     cells (in 30 ul of media).""",
     "author": "Adrian Tschan"
     }
 
 # requirements
-requirements = {"robotType": "OT-2", "apiLevel": "2.16"}
+requirements = {"robotType": "OT-2", "apiLevel": "2.18"}
+
+def add_parameters(parameters: protocol_api.Parameters):
+
+    parameters.add_str(
+    variable_name="pipette_position",
+    display_name="p300 8-channel position",
+    description="Which mount is the 8-Channel 300 µL pipette mounted on?",
+    choices=[
+        {"display_name": "left", "value": "left"},
+        {"display_name": "right", "value": "right"},
+    ],
+    default="left"
+    )
+
+    parameters.add_bool(
+    variable_name="exclude_experimental_drugs",
+    display_name="Exclude experimental drugs",
+    description="Turn on if the experimental drug set should be excluded.",
+    default=False,
+    )
+
+    parameters.add_bool(
+    variable_name="process_full_plate",
+    display_name="Process two patient samples",
+    description="Turn on if there are two patient samples on the plate (full plate).",
+    default=False,
+    )
+
+    parameters.add_int(
+    variable_name="antibody_source_column",
+    display_name="Antibody source column",
+    description="Which column on the antibody plate should be pipetted?",
+    choices=[
+        {"display_name": "1", "value": 1},     
+        {"display_name": "4", "value": 4},
+        {"display_name": "7", "value": 7},
+        {"display_name": "10", "value": 10},
+        ],
+    default=1,
+    )
 
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
@@ -108,31 +148,34 @@ def run(protocol: protocol_api.ProtocolContext):
         # load the drug layout on drug master plate and final 384-well plate
         cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.2.csv")
 
-    # for now, only 1 patient
-    cell_plate_metadata = cell_plate_metadata.loc[
-        cell_plate_metadata["sample"] != "patient_2"]
+    # process one or two patient samples
+    if protocol.params.process_full_plate == False:
+        cell_plate_metadata = cell_plate_metadata.loc[
+            cell_plate_metadata["sample"] != "patient_2"]
 
     # load antibodies into 96-well plate
     for well in antibody_plate.columns()[0]:
         well.load_liquid(liquid=antibodies, volume=650)
+
+    # include or exclude experimental drugs
+    if protocol.params.exclude_experimental_drugs:
+        cell_plate_metadata = cell_plate_metadata.loc[
+            cell_plate_metadata.drug_panel == "standard"]
     # load samples
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
         well.load_liquid(liquid=sample, volume=30)
 
     # initialize pipette
-    left_pipette = protocol.load_instrument("p300_multi_gen2", "left",
-                                            tip_racks=[tips])
-    right_pipette = protocol.load_instrument("p20_single_gen2", "right",
-                                            tip_racks=[tips])
+    pipette = protocol.load_instrument("p300_multi_gen2",
+                                       protocol.params.pipette_position,
+                                       tip_racks=[tips])
 
     # set well clearance of pipettes
-    left_pipette.well_bottom_clearance.aspirate = 1.0
-    left_pipette.well_bottom_clearance.dispense = 3.0
-    right_pipette.well_bottom_clearance.aspirate = 1.0
-    right_pipette.well_bottom_clearance.dispense = 3.0
+    pipette.well_bottom_clearance.aspirate = 1.0
+    pipette.well_bottom_clearance.dispense = 3.0
 
-    source_well = 'A10'
+    source_well = 'A' + str(protocol.params.antibody_source_column)
     dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
     dest_wells = list(itertools.chain.from_iterable(dest_wells))
     destinations = [cell_plate[well] for well in dest_wells]
@@ -145,7 +188,7 @@ def run(protocol: protocol_api.ProtocolContext):
         dispense_delay=1.0,
         n_mix=1,
         residual_volume=20,
-        pipette=left_pipette,
+        pipette=pipette,
         protocol=protocol,
         residual_dispense_location=antibody_plate[source_well],
         residual_dispense_height_from_bottom=1,

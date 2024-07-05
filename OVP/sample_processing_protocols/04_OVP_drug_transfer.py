@@ -70,7 +70,7 @@ def distribute(volume: int,
 
 # metadata
 metadata = {
-    "protocolName": "OVP Drug Transfer to 384-well Cell Plate (single patient)",
+    "protocolName": "OVP Drug Transfer to 384-well Cell Plate",
     "description": """This protocol is used to transfer drugs from a
      pre-prepared 96-well drug plate to a 384 well plate containing patient
      cells (in 45 ul of media) in a randomized layout.""",
@@ -83,17 +83,14 @@ requirements = {"robotType": "OT-2", "apiLevel": "2.18"}
 def add_parameters(parameters: protocol_api.Parameters):
 
     parameters.add_str(
-    variable_name="left_pipette",
-    display_name="left pipette",
-    description="Pipette that is mounted on the left holder. This pipette is not used in this protocol.",
+    variable_name="pipette_position",
+    display_name="p20 1-channel position",
+    description="Which mount is the 1-Channel 20 µL pipette mounted on?",
     choices=[
-        {"display_name": "1-Channel 20 µL", "value": "p20_single_gen2"},
-        {"display_name": "8-Channel 20 µL", "value": "p20_multi_gen2"},
-        {"display_name": "1-Channel 300 µL", "value": "p300_single_gen2"},
-        {"display_name": "8-Channel 300 µL", "value": "p300_multi_gen2"},
-        {"display_name": "1-Channel 1000 µL", "value": "p1000_single_gen2"},
+        {"display_name": "left", "value": "left"},
+        {"display_name": "right", "value": "right"},
     ],
-    default="p300_multi_gen2"
+    default="right"
     )
 
     parameters.add_bool(
@@ -158,16 +155,12 @@ def run(protocol: protocol_api.ProtocolContext):
         well.load_liquid(liquid=sample, volume=45)
 
     # initialize pipette
-    left_pipette = protocol.load_instrument(protocol.params.left_pipette, "left",
-                                            tip_racks=[tips])
-    right_pipette = protocol.load_instrument("p20_single_gen2", "right",
+    pipette = protocol.load_instrument("p20_single_gen2", "right",
                                             tip_racks=[tips])
 
     # set well clearance of pipettes
-    left_pipette.well_bottom_clearance.aspirate = 0.5
-    left_pipette.well_bottom_clearance.dispense = 2.5
-    right_pipette.well_bottom_clearance.aspirate = 0.5
-    right_pipette.well_bottom_clearance.dispense = 2.5
+    pipette.well_bottom_clearance.aspirate = 0.5
+    pipette.well_bottom_clearance.dispense = 2.5
 
     # get unique names of drugs and whether they are combinations
     drug_list = cell_plate_metadata[["condition", "combination"]]
@@ -203,7 +196,7 @@ def run(protocol: protocol_api.ProtocolContext):
             source=drug_plate[source_well],
             dest=destinations,
             dispense_delay=0.5,
-            pipette=right_pipette,
+            pipette=pipette,
             residual_volume=5,
             protocol=protocol,
         )
@@ -244,7 +237,7 @@ def run(protocol: protocol_api.ProtocolContext):
             source=drug_plate[source_well_1],
             dest=destinations,
             dispense_delay=0.5,
-            pipette=right_pipette,
+            pipette=pipette,
             residual_volume=5,
             protocol=protocol,
         )
@@ -254,7 +247,7 @@ def run(protocol: protocol_api.ProtocolContext):
             source=drug_plate[source_well_2],
             dest=destinations,
             dispense_delay=0.5,
-            pipette=right_pipette,
+            pipette=pipette,
             residual_volume=5,
             protocol=protocol,
         )

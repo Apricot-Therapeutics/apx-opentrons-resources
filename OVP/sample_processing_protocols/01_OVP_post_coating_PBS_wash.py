@@ -1,9 +1,9 @@
 from opentrons import protocol_api
+from opentrons.protocol_api import Well
 import pandas as pd
 from sys import platform
-import numpy as np
-from opentrons.protocol_api import Well
 from typing import Optional
+import numpy as np
 import itertools
 
 # helper function to distribute with more flexibility
@@ -22,7 +22,9 @@ def distribute(volume: int,
                residual_dispense_location: Optional[Well] = None,
                n_mix: Optional[int] = None,
                aspirate_rate: float = 1.0,
-               dispense_rate: float = 1.0,):
+               dispense_rate: float = 1.0,
+               reuse_tips=False,
+               ignore_tips=False):
     
     # based on the volume, calculate how often can be pipetted
     n_pipetting_steps = np.floor((300 - residual_volume)/volume) # TO-DO: max volume of pipette
@@ -30,8 +32,12 @@ def distribute(volume: int,
     # chunk up the destinations
     chunked_dest = np.array_split(dest, np.ceil(len(dest)/n_pipetting_steps))
 
-    for sub_list in chunked_dest:
-        pipette.pick_up_tip()
+    for i, sub_list in enumerate(chunked_dest):
+        if ignore_tips == False:
+            if reuse_tips == False:
+                pipette.pick_up_tip()
+            if (reuse_tips == True) & (i == 0):
+                pipette.pick_up_tip()
 
         # mix if required
         if n_mix is not None:
@@ -67,13 +73,73 @@ def distribute(volume: int,
         if residual_dispense_location is not None:
             pipette.dispense(location=residual_dispense_location.bottom(z=residual_dispense_height_from_bottom))
         # drop tip
-        pipette.drop_tip()
+        if ignore_tips == False:
+            if (reuse_tips == False) or (i == (len(chunked_dest) -1)):
+                pipette.drop_tip()
+
+# helper function to consolidate with more flexibility
+def consolidate(volume: int,
+               source: list[Well],
+               dest: Well,
+               pipette,
+               protocol: protocol_api.ProtocolContext,
+               aspirate_delay: float = 0,
+               dispense_delay: float = 0,
+               touch_tip_radius: Optional[float] = None,
+               touch_tip_v_offset: Optional[float] = None,
+               touch_tip: bool = False,
+               aspirate_rate: float = 1.0,
+               dispense_rate: float = 1.0,
+               reuse_tips=False,
+               ignore_tips=False):
+    
+    # based on the volume, calculate how often can be pipetted
+    n_pipetting_steps = np.floor((300)/volume) # TO-DO: max volume of pipette
+    
+    # chunk up the destinations
+    chunked_dest = np.array_split(source, np.ceil(len(source)/n_pipetting_steps))
+
+    for i, sub_list in enumerate(chunked_dest):
+        if ignore_tips == False:
+            if reuse_tips == False:
+                pipette.pick_up_tip()
+            if (reuse_tips == True) & (i == 0):
+                pipette.pick_up_tip() 
+
+        # iterate over each destination and dispense 5 ul
+        for source in sub_list:
+            pipette.aspirate(
+                volume=volume,
+                location=source,
+                rate=aspirate_rate
+            )
+            # short delay
+            protocol.delay(seconds=dispense_delay)
+
+        # iterate over destination sublists and aspirate
+        pipette.dispense(
+            volume=len(sub_list)*volume, 
+            location=dest,
+            rate=dispense_rate
+        )
+
+        if touch_tip:
+                pipette.touch_tip(radius=touch_tip_radius,
+                                  v_offset=touch_tip_v_offset) 
+
+        # short delay
+        protocol.delay(seconds=aspirate_delay)
+
+        # drop tip
+        if ignore_tips == False:
+            if (reuse_tips == False) or (i == (len(chunked_dest) -1)):
+                pipette.drop_tip()
+
 # metadata
 metadata = {
-    "protocolName": "OVP Primary Antibody addition (single patient)",
-    "description": """This protocol is used to transfer drugs from a
-     pre-prepared 96-well drug plate to a 384 well plate containing patient
-     cells (in 45 ul of media) in a randomized layout.""",
+    "protocolName": "OVP Post Polylysine/Fibronectin Coating PBS Wash",
+    "description": """This protocol is used to wash a 384-well plate
+    with PBS after Polylysine/Fibronectin coating.""",
     "author": "Adrian Tschan"
     }
 
@@ -84,7 +150,7 @@ def add_parameters(parameters: protocol_api.Parameters):
 
     parameters.add_str(
     variable_name="pipette_position",
-    display_name="8-Channel 300 µL pipette position",
+    display_name="p300 8-channel position",
     description="Which mount is the 8-Channel 300 µL pipette mounted on?",
     choices=[
         {"display_name": "left", "value": "left"},
@@ -107,25 +173,13 @@ def add_parameters(parameters: protocol_api.Parameters):
     default=False,
     )
 
-    parameters.add_str(
-    variable_name="antibody source column",
-    display_name="Antibody source column",
-    description="Which column on the antibody plate should be pipetted?",
-    choices=[
-        {"display_name": "1", "value": "1"},
-        {"display_name": "2", "value": "2"},
-        {"display_name": "3", "value": "3"},
-        {"display_name": "4", "value": "4"},
-        {"display_name": "5", "value": "5"},
-        {"display_name": "6", "value": "6"},
-        {"display_name": "7", "value": "7"},
-        {"display_name": "8", "value": "8"},
-        {"display_name": "9", "value": "9"},
-        {"display_name": "10", "value": "10"},
-        {"display_name": "11", "value": "11"},
-        {"display_name": "12", "value": "12"},
-        ],
-    default="1",
+    parameters.add_int(
+    variable_name="n_wash",
+    display_name="Number of wash cycles",
+    description="How many wash cycles with PBS should be performed?",
+    minimum=1,
+    maximum=100,
+    default=5,
     )
 
 # protocol run function
@@ -134,23 +188,23 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
-    antibody_plate = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", 5)
+    reservoir = protocol.load_labware("integra150ml_1_reservoir_150000ul", 5)
+    trash = protocol.load_labware("integra150ml_1_reservoir_150000ul", 9)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
-
-    # for local testing
-    #antibody_plate = protocol.load_labware("nest_96_wellplate_200ul_flat", 2)
-    #cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 3)
 
     # optional: set liquids
     sample = protocol.define_liquid(name="sample", display_color="#1c03fc",
-                                    description="sample to which to primary antibodies")
-    antibodies = protocol.define_liquid(name="primary_antibodies", display_color="#fcba03",
-                                 description="primary antibodies")
+                                    description="wells that will contain sample")
+    PBS = protocol.define_liquid(name="PBS", display_color="#1c03fc",
+                                 description="PBS for washing")
+    waste_PBS = protocol.define_liquid(name="waste PBS", display_color="#1c03fc",
+                                    description="waste PBS collection")
 
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate and final 384-well plate
         cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v1.2.csv")
+
     elif platform == "linux":
         # load the drug layout on drug master plate and final 384-well plate
         cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.2.csv")
@@ -159,52 +213,64 @@ def run(protocol: protocol_api.ProtocolContext):
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
             cell_plate_metadata["sample"] != "patient_2"]
-
-    # load antibodies into 96-well plate
-    for well in antibody_plate.columns()[0]:
-        well.load_liquid(liquid=antibodies, volume=650)
-
+    
     # include or exclude experimental drugs
     if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[
-            cell_plate_metadata.drug_panel == "standard"]
-    # load samples
+        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
+
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
-        well.load_liquid(liquid=sample, volume=30)
+        well.load_liquid(liquid=sample, volume=40)
+
+    # load media into reservoir
+    reservoir['A1'].load_liquid(liquid=PBS, volume=50000)
+    trash['A1'].load_liquid(liquid=waste_PBS, volume=100000)
 
     # initialize pipette
-    pipette = protocol.load_instrument("p300_multi_gen2",
-                                       protocol.params.pipette_position,
+    pipette = protocol.load_instrument("p300_multi_gen2", "left",
                                        tip_racks=[tips])
-    #right_pipette = protocol.load_instrument("p20_single_gen2", "right",
-    #                                        tip_racks=[tips])
 
     # set well clearance of pipettes
-    pipette.well_bottom_clearance.aspirate = 1.0
-    pipette.well_bottom_clearance.dispense = 3.0
-    #right_pipette.well_bottom_clearance.aspirate = 1.0
-    #right_pipette.well_bottom_clearance.dispense = 3.0
+    pipette.well_bottom_clearance.aspirate = 3
+    pipette.well_bottom_clearance.dispense = 3.5
 
-    source_well = 'A1'
     dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
     dest_wells = list(itertools.chain.from_iterable(dest_wells))
     destinations = [cell_plate[well] for well in dest_wells]
 
-    distribute(
-        volume=30,
-        source=antibody_plate[source_well],
-        dest=destinations,
-        aspirate_delay=1.0,
-        dispense_delay=1.0,
-        n_mix=1,
-        residual_volume=20,
-        pipette=pipette,
-        protocol=protocol,
-        residual_dispense_location=antibody_plate[source_well],
-        residual_dispense_height_from_bottom=1,
-        dispense_rate=0.4,
-        touch_tip=True,
-        touch_tip_radius=0.4,
-        touch_tip_v_offset=-5
-    )
+    source_well = "A1"
+
+    pipette.pick_up_tip()
+
+    for i in range(0, protocol.params.n_wash):
+        distribute(
+            volume=60,
+            source=reservoir[source_well],
+            dest=destinations,
+            aspirate_delay=0,
+            dispense_delay=0,
+            residual_volume=20,
+            pipette=pipette,
+            protocol=protocol,
+            residual_dispense_location=reservoir[source_well],
+            residual_dispense_height_from_bottom=3.5,
+            touch_tip=False,
+            ignore_tips=True,
+            )
+        
+        consolidate(
+            volume=60,
+            source=destinations,
+            dest=trash[source_well],
+            aspirate_delay=0,
+            dispense_delay=0,
+            pipette=pipette,
+            protocol=protocol,
+            touch_tip=False,
+            ignore_tips=True,
+            )
+        
+    pipette.drop_tip()
+    
+
+
