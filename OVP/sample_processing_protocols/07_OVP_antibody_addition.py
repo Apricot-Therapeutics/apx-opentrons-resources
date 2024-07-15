@@ -112,12 +112,8 @@ def add_parameters(parameters: protocol_api.Parameters):
     variable_name="antibody_source_column",
     display_name="Antibody source column",
     description="Which column on the antibody plate should be pipetted?",
-    choices=[
-        {"display_name": "1", "value": 1},     
-        {"display_name": "4", "value": 4},
-        {"display_name": "7", "value": 7},
-        {"display_name": "10", "value": 10},
-        ],
+    minimum=1,
+    maximum=12,
     default=1,
     )
 
@@ -154,7 +150,7 @@ def run(protocol: protocol_api.ProtocolContext):
             cell_plate_metadata["sample"] != "patient_2"]
 
     # load antibodies into 96-well plate
-    for well in antibody_plate.columns()[0]:
+    for well in antibody_plate.columns()[(protocol.params.antibody_source_column - 1)]:
         well.load_liquid(liquid=antibodies, volume=650)
 
     # include or exclude experimental drugs

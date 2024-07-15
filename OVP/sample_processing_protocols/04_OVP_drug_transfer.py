@@ -159,7 +159,7 @@ def run(protocol: protocol_api.ProtocolContext):
                                             tip_racks=[tips])
 
     # set well clearance of pipettes
-    pipette.well_bottom_clearance.aspirate = 0.5
+    pipette.well_bottom_clearance.aspirate = 1.0
     pipette.well_bottom_clearance.dispense = 2.5
 
     # get unique names of drugs and whether they are combinations

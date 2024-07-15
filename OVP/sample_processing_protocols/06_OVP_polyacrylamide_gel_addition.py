@@ -190,8 +190,10 @@ def run(protocol: protocol_api.ProtocolContext):
         touch_tip=True,
         touch_tip_radius=0.4,
         touch_tip_v_offset=-5,
-        reuse_tips=False,
+        reuse_tips=True,
         pre_wet_tips=True,
+        residual_dispense_location=reservoir[source_well],
+        residual_dispense_height_from_bottom=2.5,
         )
         
     

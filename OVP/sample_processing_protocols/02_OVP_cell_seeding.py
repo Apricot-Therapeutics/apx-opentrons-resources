@@ -5,6 +5,7 @@ from sys import platform
 from typing import Optional
 import numpy as np
 import itertools
+import string
 
 # helper function to distribute with more flexibility
 def distribute(volume: int,
@@ -109,6 +110,17 @@ def add_parameters(parameters: protocol_api.Parameters):
     default="left"
     )
 
+    parameters.add_str(
+    variable_name="pipette_position_20ul",
+    display_name="p20 single-channel position",
+    description="Which mount is the single-channel 20 µL pipette mounted on?",
+    choices=[
+        {"display_name": "left", "value": "left"},
+        {"display_name": "right", "value": "right"},
+    ],
+    default="right"
+    )
+
     parameters.add_bool(
     variable_name="exclude_experimental_drugs",
     display_name="Exclude experimental drugs",
@@ -150,12 +162,22 @@ def add_parameters(parameters: protocol_api.Parameters):
         maximum=12,
     )
 
+    parameters.add_int(
+        variable_name="rpmi_col",
+        display_name="RPMI reservoir column",
+        description="The reservoir column containing RPMI to fill up wells adjacent to sample wells.",
+        default=7,
+        minimum=1,
+        maximum=12,
+    )
+
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
 
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
+    tips_20ul = protocol.load_labware("opentrons_96_tiprack_20ul", 4)
     reservoir = protocol.load_labware("nest_12_reservoir_15ml", 5)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
@@ -166,6 +188,8 @@ def run(protocol: protocol_api.ProtocolContext):
                                     description="Cells from patient 2")
     ovcar3 = protocol.define_liquid(name="OVCAR3 sample", display_color="#1c05fc",
                                     description="OVCAR3 cells")
+    rpmi = protocol.define_liquid(name="RPMI medium", display_color="#1c06fc",
+                                    description="RPMI medium to fill wells adjacent to sample wells")
 
     # load some metadata we need later
     if platform == "win32":
@@ -188,18 +212,26 @@ def run(protocol: protocol_api.ProtocolContext):
     # load media into reservoir
     reservoir['A' + str(protocol.params.sample_1_col)].load_liquid(liquid=patient_1, volume=5000)
     reservoir['A' + str(protocol.params.cell_line_col)].load_liquid(liquid=ovcar3, volume=5000)
+    reservoir['A' + str(protocol.params.rpmi_col)].load_liquid(liquid=rpmi, volume=5000)
 
     # if second patient sample is provided, include it:
     if protocol.params.process_full_plate:
         reservoir['A' + str(protocol.params.sample_2_col)].load_liquid(liquid=patient_2, volume=5000)
 
     # initialize pipette
-    pipette = protocol.load_instrument("p300_multi_gen2", "left",
+    pipette = protocol.load_instrument("p300_multi_gen2", 
+                                       protocol.params.pipette_position,
                                        tip_racks=[tips])
+    
+    pipette_20ul = protocol.load_instrument("p20_single_gen2", 
+                                       protocol.params.pipette_position_20ul,
+                                       tip_racks=[tips_20ul])
 
     # set well clearance of pipettes
     pipette.well_bottom_clearance.aspirate = 1
     pipette.well_bottom_clearance.dispense = 2
+    pipette_20ul.well_bottom_clearance.aspirate = 1
+    pipette_20ul.well_bottom_clearance.dispense = 2
 
     for sample_type in cell_plate_metadata["sample"].unique():
 
@@ -237,6 +269,83 @@ def run(protocol: protocol_api.ProtocolContext):
             )
         
         pipette.drop_tip()
+
+    # after seeding is done, distribute RPMI to wells adjacent to wells containing media
+    if (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == False):
+        destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
+        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "22"]]
+        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
+        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
+
+    elif (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == True):
+        destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
+        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "9", "11", "19"]]
+        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
+        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
+
+    elif (protocol.params.process_full_plate == False) & (protocol.params.exclude_experimental_drugs == False):
+        destinations_rows = [[row + str(col) for col in range(2, 14)] for row in ["B", "O"]]
+        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "13"]]
+        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
+        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
+
+    elif (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == True):
+        destinations_rows = [[row + str(col) for col in range(2, 14)] for row in ["B", "O"]]
+        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "9", "11", "13"]]
+        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
+        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
+
+    destinations_rows = [cell_plate[well] for well in destinations_rows]
+    destinations_cols = [cell_plate[well] for well in destinations_cols]
+
+    source_well = 'A' + str(protocol.params.rpmi_col)
+
+    # pipette columns
+
+    pipette.pick_up_tip()
+
+    distribute(
+        volume=40,
+        source=reservoir[source_well],
+        dest=destinations_cols,
+        dispense_delay=0.25,
+        residual_volume=20,
+        pipette=pipette,
+        protocol=protocol,
+        touch_tip=True,
+        touch_tip_radius=0.4,
+        touch_tip_v_offset=-5,
+        ignore_tips=True
+        )
+        
+    pipette.drop_tip()
+
+    pipette_20ul.pick_up_tip()
+
+    for dest in destinations_rows:
+
+        for i in range(0, 2):
+    
+            pipette_20ul.aspirate(
+                volume=20,
+                location=reservoir[source_well],
+                rate=5.0,
+            )
+
+            pipette_20ul.dispense(
+                volume=20,
+                location=dest,
+                rate=5.0,
+            )
+
+            protocol.delay(seconds=0.25)
+
+            pipette_20ul.touch_tip(radius=0.4,
+                                v_offset=-5)
+    
+    pipette_20ul.drop_tip()
+
+
     
     
 

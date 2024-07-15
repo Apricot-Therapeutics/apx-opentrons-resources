@@ -137,9 +137,9 @@ def consolidate(volume: int,
 
 # metadata
 metadata = {
-    "protocolName": "OVP Post PFA PBS Wash",
+    "protocolName": "OVP Post Polylysine/Fibronectin Coating PBS Wash",
     "description": """This protocol is used to wash a 384-well plate
-    with PBS after PFA fixation.""",
+    with PBS after Polylysine/Fibronectin coating.""",
     "author": "Adrian Tschan"
     }
 
@@ -179,7 +179,7 @@ def add_parameters(parameters: protocol_api.Parameters):
     description="How many wash cycles with PBS should be performed?",
     minimum=1,
     maximum=100,
-    default=4,
+    default=5,
     )
 
 # protocol run function
@@ -188,8 +188,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
-    reservoir = protocol.load_labware("integra150ml_1_reservoir_150000ul", 5)
-    trash = protocol.load_labware("integra150ml_1_reservoir_150000ul", 9)
+    reservoir = protocol.load_labware("integra300ml_1_reservoir_300000ul", 5)
+    trash = protocol.load_labware("integra300ml_1_reservoir_300000ul", 9)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # optional: set liquids
@@ -220,7 +220,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
-        well.load_liquid(liquid=sample, volume=90)
+        well.load_liquid(liquid=sample, volume=40)
 
     # load media into reservoir
     reservoir['A1'].load_liquid(liquid=PBS, volume=50000)
@@ -242,19 +242,6 @@ def run(protocol: protocol_api.ProtocolContext):
 
     pipette.pick_up_tip()
 
-    consolidate(
-        volume=50,
-        source=destinations,
-        dest=trash[source_well],
-        aspirate_delay=0,
-        dispense_delay=0,
-        aspirate_rate=0.2,
-        pipette=pipette,
-        protocol=protocol,
-        touch_tip=False,
-        ignore_tips=True,
-        )
-    
     for i in range(0, protocol.params.n_wash):
         distribute(
             volume=60,
@@ -262,7 +249,6 @@ def run(protocol: protocol_api.ProtocolContext):
             dest=destinations,
             aspirate_delay=0,
             dispense_delay=0,
-            dispense_rate=0.2,
             residual_volume=20,
             pipette=pipette,
             protocol=protocol,
@@ -272,18 +258,12 @@ def run(protocol: protocol_api.ProtocolContext):
             ignore_tips=True,
             )
         
-        if i == (protocol.params.n_wash - 1):
-            consolidate_volume = 50
-        else:
-            consolidate_volume = 60
-        
         consolidate(
-            volume=consolidate_volume,
+            volume=60,
             source=destinations,
             dest=trash[source_well],
             aspirate_delay=0,
             dispense_delay=0,
-            aspirate_rate=0.2,
             pipette=pipette,
             protocol=protocol,
             touch_tip=False,
