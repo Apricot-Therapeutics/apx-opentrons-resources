@@ -87,8 +87,8 @@ def distribute(volume: int,
 
 # metadata
 metadata = {
-    "protocolName": "OVP Polyacrylamide Gel Addition",
-    "description": """This protocol is used to add a 2.5% PAA gel mix
+    "protocolName": "OVP PFA Fixation",
+    "description": """This protocol is used to add a 8% PFA solution
     to a 384-well plate containing patient samples.""",
     "author": "Adrian Tschan"
     }
@@ -126,6 +126,8 @@ def add_parameters(parameters: protocol_api.Parameters):
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
 
+    protocol.pause(msg='IMPORTANT: Has the cell plate been aspirated to 40 ul on the washer-dispenser? If no, do so before resuming the protocol.')
+
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
@@ -135,8 +137,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # optional: set liquids
     sample = protocol.define_liquid(name="sample", display_color="#1c03fc",
                                     description="wells that will contain sample")
-    PAA = protocol.define_liquid(name="2.5% PAA gel mix", display_color="#1c03fc",
-                                 description="gel mix")
+    PFA = protocol.define_liquid(name="8% PFA in PBS", display_color="#1c03fc",
+                                 description="fixation solution")
 
     # load some metadata we need later
     if platform == "win32":
@@ -161,7 +163,7 @@ def run(protocol: protocol_api.ProtocolContext):
         well.load_liquid(liquid=sample, volume=40)
 
     # load media into reservoir
-    reservoir['A1'].load_liquid(liquid=PAA, volume=4000)
+    reservoir['A1'].load_liquid(liquid=PFA, volume=7000)
 
     # initialize pipette
     pipette = protocol.load_instrument("p300_multi_gen2", "left",

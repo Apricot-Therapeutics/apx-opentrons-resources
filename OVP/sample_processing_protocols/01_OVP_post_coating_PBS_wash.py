@@ -179,7 +179,7 @@ def add_parameters(parameters: protocol_api.Parameters):
     description="How many wash cycles with PBS should be performed?",
     minimum=1,
     maximum=100,
-    default=5,
+    default=8,
     )
 
 # protocol run function
@@ -188,8 +188,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
-    reservoir = protocol.load_labware("integra150ml_1_reservoir_150000ul", 5)
-    trash = protocol.load_labware("integra150ml_1_reservoir_150000ul", 9)
+    reservoir = protocol.load_labware("integra300ml_1_reservoir_300000ul", 5)
+    trash = protocol.load_labware("integra300ml_1_reservoir_300000ul", 9)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # optional: set liquids

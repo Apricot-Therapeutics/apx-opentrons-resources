@@ -24,7 +24,8 @@ def distribute(volume: int,
                aspirate_rate: float = 1.0,
                dispense_rate: float = 1.0,
                reuse_tips=False,
-               ignore_tips=False):
+               ignore_tips=False,
+               pre_wet_tips=False,):
     
     # based on the volume, calculate how often can be pipetted
     n_pipetting_steps = np.floor((300 - residual_volume)/volume) # TO-DO: max volume of pipette
@@ -38,6 +39,13 @@ def distribute(volume: int,
                 pipette.pick_up_tip()
             if (reuse_tips == True) & (i == 0):
                 pipette.pick_up_tip()
+
+        # pre-wet tip if required:
+        if pre_wet_tips:
+            pipette.aspirate(volume=300,
+                             location=source)
+            pipette.dispense(volume=300,
+                             location=source)
 
         # mix if required
         if n_mix is not None:
@@ -77,69 +85,11 @@ def distribute(volume: int,
             if (reuse_tips == False) or (i == (len(chunked_dest) -1)):
                 pipette.drop_tip()
 
-# helper function to consolidate with more flexibility
-def consolidate(volume: int,
-               source: list[Well],
-               dest: Well,
-               pipette,
-               protocol: protocol_api.ProtocolContext,
-               aspirate_delay: float = 0,
-               dispense_delay: float = 0,
-               touch_tip_radius: Optional[float] = None,
-               touch_tip_v_offset: Optional[float] = None,
-               touch_tip: bool = False,
-               aspirate_rate: float = 1.0,
-               dispense_rate: float = 1.0,
-               reuse_tips=False,
-               ignore_tips=False):
-    
-    # based on the volume, calculate how often can be pipetted
-    n_pipetting_steps = np.floor((300)/volume) # TO-DO: max volume of pipette
-    
-    # chunk up the destinations
-    chunked_dest = np.array_split(source, np.ceil(len(source)/n_pipetting_steps))
-
-    for i, sub_list in enumerate(chunked_dest):
-        if ignore_tips == False:
-            if reuse_tips == False:
-                pipette.pick_up_tip()
-            if (reuse_tips == True) & (i == 0):
-                pipette.pick_up_tip() 
-
-        # iterate over each destination and dispense 5 ul
-        for source in sub_list:
-            pipette.aspirate(
-                volume=volume,
-                location=source,
-                rate=aspirate_rate
-            )
-            # short delay
-            protocol.delay(seconds=dispense_delay)
-
-        # iterate over destination sublists and aspirate
-        pipette.dispense(
-            volume=len(sub_list)*volume, 
-            location=dest,
-            rate=dispense_rate
-        )
-
-        if touch_tip:
-                pipette.touch_tip(radius=touch_tip_radius,
-                                  v_offset=touch_tip_v_offset) 
-
-        # short delay
-        protocol.delay(seconds=aspirate_delay)
-
-        # drop tip
-        if ignore_tips == False:
-            if (reuse_tips == False) or (i == (len(chunked_dest) -1)):
-                pipette.drop_tip()
-
 # metadata
 metadata = {
-    "protocolName": "OVP Post Polylysine/Fibronectin Coating PBS Wash",
-    "description": """This protocol is used to wash a 384-well plate
-    with PBS after Polylysine/Fibronectin coating.""",
+    "protocolName": "OVP Polyacrylamide Gel Addition",
+    "description": """This protocol is used to add a 2.5% PAA gel mix
+    to a 384-well plate containing patient samples.""",
     "author": "Adrian Tschan"
     }
 
@@ -173,32 +123,22 @@ def add_parameters(parameters: protocol_api.Parameters):
     default=False,
     )
 
-    parameters.add_int(
-    variable_name="n_wash",
-    display_name="Number of wash cycles",
-    description="How many wash cycles with PBS should be performed?",
-    minimum=1,
-    maximum=100,
-    default=5,
-    )
-
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
+
+    protocol.pause(msg='IMPORTANT: Has the cell plate been aspirated to 40 ul on the washer-dispenser? If no, do so before resuming the protocol.')
 
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
-    reservoir = protocol.load_labware("integra300ml_1_reservoir_300000ul", 5)
-    trash = protocol.load_labware("integra300ml_1_reservoir_300000ul", 9)
+    reservoir = protocol.load_labware("nest_12_reservoir_15ml", 5)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # optional: set liquids
     sample = protocol.define_liquid(name="sample", display_color="#1c03fc",
                                     description="wells that will contain sample")
-    PBS = protocol.define_liquid(name="PBS", display_color="#1c03fc",
-                                 description="PBS for washing")
-    waste_PBS = protocol.define_liquid(name="waste PBS", display_color="#1c03fc",
-                                    description="waste PBS collection")
+    PAA = protocol.define_liquid(name="2.5% PAA gel mix", display_color="#1c03fc",
+                                 description="gel mix")
 
     # load some metadata we need later
     if platform == "win32":
@@ -223,16 +163,15 @@ def run(protocol: protocol_api.ProtocolContext):
         well.load_liquid(liquid=sample, volume=40)
 
     # load media into reservoir
-    reservoir['A1'].load_liquid(liquid=PBS, volume=50000)
-    trash['A1'].load_liquid(liquid=waste_PBS, volume=100000)
+    reservoir['A1'].load_liquid(liquid=PAA, volume=4000)
 
     # initialize pipette
     pipette = protocol.load_instrument("p300_multi_gen2", "left",
                                        tip_racks=[tips])
 
     # set well clearance of pipettes
-    pipette.well_bottom_clearance.aspirate = 3
-    pipette.well_bottom_clearance.dispense = 3.5
+    pipette.well_bottom_clearance.aspirate = 1
+    pipette.well_bottom_clearance.dispense = 4
 
     dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
     dest_wells = list(itertools.chain.from_iterable(dest_wells))
@@ -240,37 +179,25 @@ def run(protocol: protocol_api.ProtocolContext):
 
     source_well = "A1"
 
-    pipette.pick_up_tip()
-
-    for i in range(0, protocol.params.n_wash):
-        distribute(
-            volume=60,
-            source=reservoir[source_well],
-            dest=destinations,
-            aspirate_delay=0,
-            dispense_delay=0,
-            residual_volume=20,
-            pipette=pipette,
-            protocol=protocol,
-            residual_dispense_location=reservoir[source_well],
-            residual_dispense_height_from_bottom=3.5,
-            touch_tip=False,
-            ignore_tips=True,
-            )
+    distribute(
+        volume=40,
+        source=reservoir[source_well],
+        dest=destinations,
+        aspirate_delay=1.0,
+        dispense_delay=1.0,
+        dispense_rate=0.5,
+        residual_volume=20,
+        pipette=pipette,
+        protocol=protocol,
+        touch_tip=True,
+        touch_tip_radius=0.4,
+        touch_tip_v_offset=-5,
+        reuse_tips=True,
+        pre_wet_tips=True,
+        residual_dispense_location=reservoir[source_well],
+        residual_dispense_height_from_bottom=2.5,
+        )
         
-        consolidate(
-            volume=60,
-            source=destinations,
-            dest=trash[source_well],
-            aspirate_delay=0,
-            dispense_delay=0,
-            pipette=pipette,
-            protocol=protocol,
-            touch_tip=False,
-            ignore_tips=True,
-            )
-        
-    pipette.drop_tip()
     
 
 

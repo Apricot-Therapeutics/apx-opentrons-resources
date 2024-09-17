@@ -174,6 +174,8 @@ def add_parameters(parameters: protocol_api.Parameters):
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
 
+    protocol.pause(msg='IMPORTANT: Have the first and last row of tips been removed from the p300 tip box? If no, remove them before resuming the protocol.')
+
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
