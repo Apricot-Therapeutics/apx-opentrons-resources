@@ -48,10 +48,10 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate
-        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v1.3.csv")
+        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v2.0.csv")
     elif platform == "linux":
         # load the drug layout on drug master plate
-        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.3.csv")
+        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/OVP/drug_plate_metadata_v2.0.csv")
 
 
     # load drugs into 96-well plate

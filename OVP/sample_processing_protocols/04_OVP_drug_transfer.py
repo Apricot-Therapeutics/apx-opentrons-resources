@@ -129,12 +129,12 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v1.3.csv")
-        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v1.2.csv")
+        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v2.0.csv")
+        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v2.0.csv")
     elif platform == "linux":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.3.csv")
-        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.2.csv")
+        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/OVP/drug_plate_metadata_v2.0.csv")
+        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/OVP/plate_metadata_v2.0.csv")
 
     # process one or two patient samples
     if protocol.params.process_full_plate == False:
