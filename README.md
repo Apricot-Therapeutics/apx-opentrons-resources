@@ -9,7 +9,7 @@ SSH access was set up according to https://support.opentrons.com/s/article/Setti
 ssh -i .ssh/ot2_ssh_key root@169.254.113.174
 ```
 
-To transfer a file from this computer to the OT-2, use the following command:
+To transfer a file from this computer to the OT-2, use the following command (You do not have to run the previous command beforehand):
 
 ```
 scp -i .ssh/ot2_ssh_key "path/to/your/file.csv" root@169.254.113.174:/path/on/OT-2
