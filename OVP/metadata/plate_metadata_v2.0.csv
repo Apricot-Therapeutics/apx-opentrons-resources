@@ -1,241 +1,241 @@
 well,row,col,sample,condition,exclude_from_randomization,replicate,combination,final_concentration_uM,drug_panel
 C03,C,3,patient_1,DMSO,True,1,False,,standard
-C04,C,4,patient_1,Olaparib,False,1,False,15,standard
-C05,C,5,patient_1,Ribociclib + Letrozole,False,1,True,10/2.5,standard
-C06,C,6,patient_1,Paclitaxel,False,1,False,0.5,standard
-C07,C,7,patient_1,Dasatinib,False,1,False,2.5,standard
-C08,C,8,patient_1,Palbociclib,False,1,False,10,standard
-C09,C,9,patient_1,Vinblastine,False,1,False,0.5,standard
-C10,C,10,patient_1,Staurosporine (high) + Etoposide,False,1,True,1/0.5,standard
-C11,C,11,patient_1,Fluorouracil,False,1,False,30,standard
+C04,C,4,patient_1,Lenvatinib,False,1,False,5,standard
+C05,C,5,patient_1,Erlotinib,False,1,False,5,standard
+C06,C,6,patient_1,Ribociclib + Letrozole,False,1,True,10/2.5,standard
+C07,C,7,patient_1,Abemaciclib,False,1,False,5,standard
+C08,C,8,patient_1,Trastuzumab Deruxtecan,False,1,False,0.025,standard
+C09,C,9,patient_1,Palbociclib,False,1,False,10,standard
+C10,C,10,patient_1,Lenvatinib + Pembrolizumab,False,1,True,5/0.034,standard
+C11,C,11,patient_1,Palbociclib + Letrozole,False,1,True,10/2.5,standard
 C12,C,12,patient_1,Pembrolizumab,True,1,False,0.034,standard
 C13,C,13,OVCAR3,DMSO,True,1,False,,standard
 C14,C,14,patient_2,DMSO,True,1,False,,standard
-C15,C,15,patient_2,Palbociclib,False,1,False,10,standard
-C16,C,16,patient_2,Ribociclib + Letrozole,False,1,True,10/2.5,standard
-C17,C,17,patient_2,Cediranib,False,1,False,5,standard
-C18,C,18,patient_2,Staurosporine (low) + Etoposide,False,1,True,0.2/0.5,standard
+C15,C,15,patient_2,Letrozole,False,1,False,2.5,standard
+C16,C,16,patient_2,Gemcitabine,False,1,False,2.5,standard
+C17,C,17,patient_2,Olaparib,False,1,False,15,standard
+C18,C,18,patient_2,Carboplatin + Pembrolizumab,False,1,True,15/0.034,standard
 C19,C,19,patient_2,Cyclophosphamide,False,1,False,30,standard
-C20,C,20,patient_2,Niraparib,False,1,False,15,standard
+C20,C,20,patient_2,Alpelisib,False,1,False,7.5,standard
 C21,C,21,patient_2,Carboplatin,False,1,False,15,standard
-C22,C,22,patient_2,Carboplatin + Pembrolizumab,False,1,True,15/0.034,standard
-D03,D,3,patient_1,Lenvatinib,False,1,False,5,standard
-D04,D,4,patient_1,Palbociclib + Letrozole,False,1,True,10/2.5,standard
-D05,D,5,patient_1,Carboplatin,False,1,False,15,standard
-D06,D,6,patient_1,Carboplatin + Pembrolizumab,False,1,True,15/0.034,standard
+C22,C,22,patient_2,Abemaciclib,False,1,False,5,standard
+D03,D,3,patient_1,Alpelisib,False,1,False,7.5,standard
+D04,D,4,patient_1,Carboplatin + Pembrolizumab,False,1,True,15/0.034,standard
+D05,D,5,patient_1,Olaparib,False,1,False,15,standard
+D06,D,6,patient_1,Carboplatin + Paclitaxel,False,1,True,15/0.5,standard
 D07,D,7,patient_1,Cyclophosphamide,False,1,False,30,standard
-D08,D,8,patient_1,Gemcitabine,False,1,False,2.5,standard
-D09,D,9,patient_1,Lenvatinib + Pembrolizumab,False,1,True,5/0.034,standard
-D10,D,10,patient_1,Carboplatin + Paclitaxel,False,1,True,15/0.5,standard
+D08,D,8,patient_1,Staurosporine (high) + Etoposide,False,1,True,1/0.5,standard
+D09,D,9,patient_1,Cediranib,False,1,False,5,standard
+D10,D,10,patient_1,Osimertinib,False,1,False,5,standard
 D11,D,11,patient_1,DMSO,True,2,False,,standard
 D12,D,12,OVCAR3,Staurosporine (low) + Etoposide,True,1,True,0.2/0.5,standard
 D13,D,13,patient_2,Pembrolizumab,True,1,False,0.034,standard
-D14,D,14,patient_2,Trastuzumab Deruxtecan,False,1,False,0.025,standard
-D15,D,15,patient_2,Abemaciclib,False,1,False,5,standard
-D16,D,16,patient_2,Osimertinib,False,1,False,5,standard
-D17,D,17,patient_2,Alpelisib,False,1,False,7.5,standard
-D18,D,18,patient_2,Lenvatinib + Pembrolizumab,False,1,True,5/0.034,standard
-D19,D,19,patient_2,Trametinib,False,1,False,2.5,standard
-D20,D,20,patient_2,Mirvetuximab Soravtansine,False,1,False,0.025,standard
-D21,D,21,patient_2,Paclitaxel,False,1,False,0.5,standard
+D14,D,14,patient_2,Staurosporine (low) + Etoposide,False,1,True,0.2/0.5,standard
+D15,D,15,patient_2,Lenvatinib + Pembrolizumab,False,1,True,5/0.034,standard
+D16,D,16,patient_2,Ribociclib,False,1,False,10,standard
+D17,D,17,patient_2,Carboplatin + Paclitaxel,False,1,True,15/0.5,standard
+D18,D,18,patient_2,Staurosporine (high) + Etoposide,False,1,True,1/0.5,standard
+D19,D,19,patient_2,Trastuzumab Deruxtecan,False,1,False,0.025,standard
+D20,D,20,patient_2,Trametinib,False,1,False,2.5,standard
+D21,D,21,patient_2,Niraparib,False,1,False,15,standard
 D22,D,22,patient_2,DMSO,True,2,False,,standard
-E03,E,3,patient_1,Palbociclib,False,2,False,10,standard
+E03,E,3,patient_1,Lenvatinib + Pembrolizumab,False,2,True,5/0.034,standard
 E04,E,4,patient_1,DMSO,True,3,False,,standard
-E05,E,5,patient_1,Ribociclib,False,1,False,10,standard
-E06,E,6,patient_1,Niraparib,False,1,False,15,standard
+E05,E,5,patient_1,Gemcitabine,False,1,False,2.5,standard
+E06,E,6,patient_1,Lenvatinib,False,2,False,5,standard
 E07,E,7,patient_1,Mirvetuximab Soravtansine,False,1,False,0.025,standard
-E08,E,8,patient_1,Staurosporine (high) + Etoposide,False,2,True,1/0.5,standard
-E09,E,9,patient_1,Dasatinib,False,2,False,2.5,standard
-E10,E,10,patient_1,Trametinib,False,1,False,2.5,standard
-E11,E,11,patient_1,Vinblastine,False,2,False,0.5,standard
+E08,E,8,patient_1,Osimertinib,False,2,False,5,standard
+E09,E,9,patient_1,Dasatinib,False,1,False,2.5,standard
+E10,E,10,patient_1,Palbociclib,False,2,False,10,standard
+E11,E,11,patient_1,Cobimetinib,False,1,False,2.5,standard
 E12,E,12,patient_1,Vinorelbine,True,1,False,0.5,standard
 E13,E,13,OVCAR3,Staurosporine (high) + Etoposide,True,1,True,1/0.5,standard
-E14,E,14,patient_2,Paclitaxel,False,2,False,0.5,standard
+E14,E,14,patient_2,Lenvatinib,False,1,False,5,standard
 E15,E,15,patient_2,DMSO,True,3,False,,standard
-E16,E,16,patient_2,Carboplatin,False,2,False,15,standard
-E17,E,17,patient_2,Staurosporine (high) + Etoposide,False,1,True,1/0.5,standard
-E18,E,18,patient_2,Palbociclib + Letrozole,False,1,True,10/2.5,standard
+E16,E,16,patient_2,Capivasertib,False,1,False,5,standard
+E17,E,17,patient_2,Palbociclib + Letrozole,False,1,True,10/2.5,standard
+E18,E,18,patient_2,Staurosporine (low) + Etoposide,False,2,True,0.2/0.5,standard
 E19,E,19,patient_2,Cobimetinib,False,1,False,2.5,standard
-E20,E,20,patient_2,Durvalumab,False,1,False,0.034,standard
-E21,E,21,patient_2,Niraparib,False,2,False,15,standard
-E22,E,22,patient_2,Olaparib,False,1,False,15,standard
-F03,F,3,patient_1,Abemaciclib,False,1,False,5,standard
-F04,F,4,patient_1,Paclitaxel,False,2,False,0.5,standard
-F05,F,5,patient_1,Osimertinib,False,1,False,5,standard
-F06,F,6,patient_1,Capivasertib,False,1,False,5,standard
-F07,F,7,patient_1,Everolimus,False,1,False,5,standard
-F08,F,8,patient_1,Durvalumab,False,1,False,0.034,standard
-F09,F,9,patient_1,Carboplatin + Paclitaxel,False,2,True,15/0.5,standard
+E20,E,20,patient_2,Carboplatin,False,2,False,15,standard
+E21,E,21,patient_2,Ribociclib + Letrozole,False,1,True,10/2.5,standard
+E22,E,22,patient_2,Carboplatin + Pembrolizumab,False,2,True,15/0.034,standard
+F03,F,3,patient_1,Durvalumab,False,1,False,0.034,standard
+F04,F,4,patient_1,Letrozole,False,1,False,2.5,standard
+F05,F,5,patient_1,Abemaciclib,False,2,False,5,standard
+F06,F,6,patient_1,Paclitaxel,False,1,False,0.5,standard
+F07,F,7,patient_1,Staurosporine (low) + Etoposide,False,1,True,0.2/0.5,standard
+F08,F,8,patient_1,Trametinib,False,1,False,2.5,standard
+F09,F,9,patient_1,Capivasertib,False,1,False,5,standard
 F10,F,10,patient_1,DMSO,True,4,False,,standard
-F11,F,11,patient_1,Staurosporine (low) + Etoposide,False,1,True,0.2/0.5,standard
+F11,F,11,patient_1,Fluorouracil,False,1,False,30,standard
 F12,F,12,OVCAR3,DMSO,True,2,False,,standard
 F13,F,13,patient_2,Vinorelbine,True,1,False,0.5,standard
-F14,F,14,patient_2,Osimertinib,False,2,False,5,standard
-F15,F,15,patient_2,Trametinib,False,2,False,2.5,standard
-F16,F,16,patient_2,Capivasertib,False,1,False,5,standard
-F17,F,17,patient_2,Dasatinib,False,1,False,2.5,standard
-F18,F,18,patient_2,Carboplatin + Paclitaxel,False,1,True,15/0.5,standard
-F19,F,19,patient_2,Vinblastine,False,1,False,0.5,standard
+F14,F,14,patient_2,Ribociclib,False,2,False,10,standard
+F15,F,15,patient_2,Durvalumab,False,1,False,0.034,standard
+F16,F,16,patient_2,Palbociclib,False,1,False,10,standard
+F17,F,17,patient_2,Vinblastine,False,1,False,0.5,standard
+F18,F,18,patient_2,Trametinib,False,2,False,2.5,standard
+F19,F,19,patient_2,Alpelisib,False,2,False,7.5,standard
 F20,F,20,patient_2,Everolimus,False,1,False,5,standard
 F21,F,21,patient_2,DMSO,True,4,False,,standard
-F22,F,22,patient_2,Erlotinib,False,1,False,5,standard
-G03,G,3,patient_1,Paclitaxel,False,3,False,0.5,standard
-G04,G,4,patient_1,Staurosporine (high) + Etoposide,False,3,True,1/0.5,standard
-G05,G,5,patient_1,Cyclophosphamide,False,2,False,30,standard
+F22,F,22,patient_2,Fluorouracil,False,1,False,30,standard
+G03,G,3,patient_1,Staurosporine (low) + Etoposide,False,2,True,0.2/0.5,standard
+G04,G,4,patient_1,Palbociclib + Letrozole,False,2,True,10/2.5,standard
+G05,G,5,patient_1,Osimertinib,False,3,False,5,standard
 G06,G,6,patient_1,DMSO,True,5,False,,standard
-G07,G,7,patient_1,Durvalumab,False,2,False,0.034,standard
-G08,G,8,patient_1,Abemaciclib,False,2,False,5,standard
-G09,G,9,patient_1,Alpelisib,False,1,False,7.5,standard
-G10,G,10,patient_1,Lenvatinib + Pembrolizumab,False,2,True,5/0.034,standard
-G11,G,11,patient_1,Letrozole,False,1,False,2.5,standard
+G07,G,7,patient_1,Niraparib,False,1,False,15,standard
+G08,G,8,patient_1,Carboplatin,False,1,False,15,standard
+G09,G,9,patient_1,Olaparib,False,2,False,15,standard
+G10,G,10,patient_1,Everolimus,False,1,False,5,standard
+G11,G,11,patient_1,Letrozole,False,2,False,2.5,standard
 G12,G,12,patient_1,Pembrolizumab,True,2,False,0.034,standard
 G13,G,13,OVCAR3,DMSO,True,3,False,,standard
-G14,G,14,patient_2,Cobimetinib,False,2,False,2.5,standard
-G15,G,15,patient_2,Dasatinib,False,2,False,2.5,standard
-G16,G,16,patient_2,Durvalumab,False,2,False,0.034,standard
+G14,G,14,patient_2,Durvalumab,False,2,False,0.034,standard
+G15,G,15,patient_2,Ribociclib + Letrozole,False,2,True,10/2.5,standard
+G16,G,16,patient_2,Trastuzumab Deruxtecan,False,2,False,0.025,standard
 G17,G,17,patient_2,DMSO,True,5,False,,standard
-G18,G,18,patient_2,Lenvatinib,False,1,False,5,standard
-G19,G,19,patient_2,Palbociclib,False,2,False,10,standard
-G20,G,20,patient_2,Carboplatin,False,3,False,15,standard
-G21,G,21,patient_2,Ribociclib,False,1,False,10,standard
-G22,G,22,patient_2,Trametinib,False,3,False,2.5,standard
-H03,H,3,patient_1,Cobimetinib,False,1,False,2.5,standard
-H04,H,4,patient_1,Trastuzumab Deruxtecan,False,1,False,0.025,standard
-H05,H,5,patient_1,Capivasertib,False,2,False,5,standard
-H06,H,6,patient_1,Everolimus,False,2,False,5,standard
-H07,H,7,patient_1,Trametinib,False,2,False,2.5,standard
+G18,G,18,patient_2,Abemaciclib,False,2,False,5,standard
+G19,G,19,patient_2,Lenvatinib + Pembrolizumab,False,2,True,5/0.034,standard
+G20,G,20,patient_2,Letrozole,False,2,False,2.5,standard
+G21,G,21,patient_2,Mirvetuximab Soravtansine,False,1,False,0.025,standard
+G22,G,22,patient_2,Olaparib,False,2,False,15,standard
+H03,H,3,patient_1,Vinblastine,False,1,False,0.5,standard
+H04,H,4,patient_1,Alpelisib,False,2,False,7.5,standard
+H05,H,5,patient_1,Abemaciclib,False,3,False,5,standard
+H06,H,6,patient_1,Dasatinib,False,2,False,2.5,standard
+H07,H,7,patient_1,Ribociclib + Letrozole,False,2,True,10/2.5,standard
 H08,H,8,patient_1,DMSO,True,6,False,,standard
-H09,H,9,patient_1,Fluorouracil,False,2,False,30,standard
-H10,H,10,patient_1,Cediranib,False,1,False,5,standard
-H11,H,11,patient_1,Niraparib,False,2,False,15,standard
+H09,H,9,patient_1,Palbociclib,False,3,False,10,standard
+H10,H,10,patient_1,Carboplatin + Pembrolizumab,False,2,True,15/0.034,standard
+H11,H,11,patient_1,Trastuzumab Deruxtecan,False,2,False,0.025,standard
 H12,H,12,OVCAR3,Staurosporine (high) + Etoposide,True,2,True,1/0.5,standard
 H13,H,13,patient_2,Pembrolizumab,True,2,False,0.034,standard
-H14,H,14,patient_2,Cyclophosphamide,False,2,False,30,standard
-H15,H,15,patient_2,Palbociclib + Letrozole,False,2,True,10/2.5,standard
-H16,H,16,patient_2,Fluorouracil,False,1,False,30,standard
-H17,H,17,patient_2,Capivasertib,False,2,False,5,standard
-H18,H,18,patient_2,Mirvetuximab Soravtansine,False,2,False,0.025,standard
+H14,H,14,patient_2,Fluorouracil,False,2,False,30,standard
+H15,H,15,patient_2,Carboplatin + Pembrolizumab,False,3,True,15/0.034,standard
+H16,H,16,patient_2,Ribociclib,False,3,False,10,standard
+H17,H,17,patient_2,Paclitaxel,False,1,False,0.5,standard
+H18,H,18,patient_2,Osimertinib,False,1,False,5,standard
 H19,H,19,patient_2,DMSO,True,6,False,,standard
-H20,H,20,patient_2,Letrozole,False,1,False,2.5,standard
-H21,H,21,patient_2,Trastuzumab Deruxtecan,False,2,False,0.025,standard
-H22,H,22,patient_2,Gemcitabine,False,1,False,2.5,standard
-I03,I,3,patient_1,Alpelisib,False,2,False,7.5,standard
-I04,I,4,patient_1,Dasatinib,False,3,False,2.5,standard
-I05,I,5,patient_1,Lenvatinib,False,2,False,5,standard
-I06,I,6,patient_1,Fluorouracil,False,3,False,30,standard
-I07,I,7,patient_1,Erlotinib,False,1,False,5,standard
-I08,I,8,patient_1,Cobimetinib,False,2,False,2.5,standard
-I09,I,9,patient_1,Staurosporine (low) + Etoposide,False,2,True,0.2/0.5,standard
+H20,H,20,patient_2,Palbociclib + Letrozole,False,2,True,10/2.5,standard
+H21,H,21,patient_2,Dasatinib,False,1,False,2.5,standard
+H22,H,22,patient_2,Vinblastine,False,2,False,0.5,standard
+I03,I,3,patient_1,Cediranib,False,2,False,5,standard
+I04,I,4,patient_1,Niraparib,False,2,False,15,standard
+I05,I,5,patient_1,Dasatinib,False,3,False,2.5,standard
+I06,I,6,patient_1,Mirvetuximab Soravtansine,False,2,False,0.025,standard
+I07,I,7,patient_1,Trametinib,False,2,False,2.5,standard
+I08,I,8,patient_1,Staurosporine (low) + Etoposide,False,3,True,0.2/0.5,standard
+I09,I,9,patient_1,Cyclophosphamide,False,2,False,30,standard
 I10,I,10,patient_1,DMSO,True,7,False,,standard
-I11,I,11,patient_1,Palbociclib + Letrozole,False,2,True,10/2.5,standard
+I11,I,11,patient_1,Carboplatin + Paclitaxel,False,2,True,15/0.5,standard
 I12,I,12,patient_1,Vinorelbine,True,2,False,0.5,standard
 I13,I,13,OVCAR3,Staurosporine (low) + Etoposide,True,2,True,0.2/0.5,standard
-I14,I,14,patient_2,Cobimetinib,False,3,False,2.5,standard
-I15,I,15,patient_2,Dasatinib,False,3,False,2.5,standard
+I14,I,14,patient_2,Palbociclib,False,2,False,10,standard
+I15,I,15,patient_2,Paclitaxel,False,2,False,0.5,standard
 I16,I,16,patient_2,Staurosporine (high) + Etoposide,False,2,True,1/0.5,standard
-I17,I,17,patient_2,Cediranib,False,2,False,5,standard
-I18,I,18,patient_2,Letrozole,False,2,False,2.5,standard
-I19,I,19,patient_2,Lenvatinib + Pembrolizumab,False,2,True,5/0.034,standard
-I20,I,20,patient_2,Ribociclib,False,2,False,10,standard
+I17,I,17,patient_2,Osimertinib,False,2,False,5,standard
+I18,I,18,patient_2,Erlotinib,False,1,False,5,standard
+I19,I,19,patient_2,Mirvetuximab Soravtansine,False,2,False,0.025,standard
+I20,I,20,patient_2,Everolimus,False,2,False,5,standard
 I21,I,21,patient_2,DMSO,True,7,False,,standard
-I22,I,22,patient_2,Abemaciclib,False,2,False,5,standard
-J03,J,3,patient_1,Osimertinib,False,2,False,5,standard
-J04,J,4,patient_1,Ribociclib,False,2,False,10,standard
+I22,I,22,patient_2,Cobimetinib,False,2,False,2.5,standard
+J03,J,3,patient_1,Fluorouracil,False,2,False,30,standard
+J04,J,4,patient_1,Alpelisib,False,3,False,7.5,standard
 J05,J,5,patient_1,DMSO,True,8,False,,standard
-J06,J,6,patient_1,Niraparib,False,3,False,15,standard
-J07,J,7,patient_1,Olaparib,False,2,False,15,standard
-J08,J,8,patient_1,Cediranib,False,2,False,5,standard
-J09,J,9,patient_1,Letrozole,False,2,False,2.5,standard
-J10,J,10,patient_1,Everolimus,False,3,False,5,standard
-J11,J,11,patient_1,Gemcitabine,False,2,False,2.5,standard
+J06,J,6,patient_1,Carboplatin,False,2,False,15,standard
+J07,J,7,patient_1,Staurosporine (high) + Etoposide,False,2,True,1/0.5,standard
+J08,J,8,patient_1,Gemcitabine,False,2,False,2.5,standard
+J09,J,9,patient_1,Paclitaxel,False,2,False,0.5,standard
+J10,J,10,patient_1,Ribociclib,False,1,False,10,standard
+J11,J,11,patient_1,Vinblastine,False,2,False,0.5,standard
 J12,J,12,OVCAR3,DMSO,True,4,False,,standard
 J13,J,13,patient_2,Vinorelbine,True,2,False,0.5,standard
-J14,J,14,patient_2,Everolimus,False,2,False,5,standard
-J15,J,15,patient_2,Osimertinib,False,3,False,5,standard
+J14,J,14,patient_2,Cyclophosphamide,False,2,False,30,standard
+J15,J,15,patient_2,Staurosporine (low) + Etoposide,False,3,True,0.2/0.5,standard
 J16,J,16,patient_2,DMSO,True,8,False,,standard
-J17,J,17,patient_2,Carboplatin + Pembrolizumab,False,2,True,15/0.034,standard
+J17,J,17,patient_2,Abemaciclib,False,3,False,5,standard
 J18,J,18,patient_2,Carboplatin + Paclitaxel,False,2,True,15/0.5,standard
-J19,J,19,patient_2,Lenvatinib,False,2,False,5,standard
-J20,J,20,patient_2,Erlotinib,False,2,False,5,standard
-J21,J,21,patient_2,Fluorouracil,False,2,False,30,standard
-J22,J,22,patient_2,Olaparib,False,2,False,15,standard
-K03,K,3,patient_1,Carboplatin + Pembrolizumab,False,2,True,15/0.034,standard
-K04,K,4,patient_1,Carboplatin,False,2,False,15,standard
-K05,K,5,patient_1,Erlotinib,False,2,False,5,standard
-K06,K,6,patient_1,Ribociclib + Letrozole,False,2,True,10/2.5,standard
-K07,K,7,patient_1,Cobimetinib,False,3,False,2.5,standard
-K08,K,8,patient_1,Letrozole,False,3,False,2.5,standard
+J19,J,19,patient_2,Gemcitabine,False,2,False,2.5,standard
+J20,J,20,patient_2,Trastuzumab Deruxtecan,False,3,False,0.025,standard
+J21,J,21,patient_2,Cediranib,False,1,False,5,standard
+J22,J,22,patient_2,Niraparib,False,2,False,15,standard
+K03,K,3,patient_1,Palbociclib + Letrozole,False,3,True,10/2.5,standard
+K04,K,4,patient_1,Cediranib,False,3,False,5,standard
+K05,K,5,patient_1,Durvalumab,False,2,False,0.034,standard
+K06,K,6,patient_1,Paclitaxel,False,3,False,0.5,standard
+K07,K,7,patient_1,Letrozole,False,3,False,2.5,standard
+K08,K,8,patient_1,Olaparib,False,3,False,15,standard
 K09,K,9,patient_1,DMSO,True,9,False,,standard
-K10,K,10,patient_1,Trastuzumab Deruxtecan,False,2,False,0.025,standard
-K11,K,11,patient_1,Alpelisib,False,3,False,7.5,standard
+K10,K,10,patient_1,Staurosporine (high) + Etoposide,False,3,True,1/0.5,standard
+K11,K,11,patient_1,Carboplatin + Paclitaxel,False,3,True,15/0.5,standard
 K12,K,12,patient_1,Pembrolizumab,True,3,False,0.034,standard
 K13,K,13,OVCAR3,DMSO,True,5,False,,standard
-K14,K,14,patient_2,Trastuzumab Deruxtecan,False,3,False,0.025,standard
-K15,K,15,patient_2,Gemcitabine,False,2,False,2.5,standard
-K16,K,16,patient_2,Staurosporine (low) + Etoposide,False,2,True,0.2/0.5,standard
-K17,K,17,patient_2,Palbociclib + Letrozole,False,3,True,10/2.5,standard
-K18,K,18,patient_2,Cediranib,False,3,False,5,standard
-K19,K,19,patient_2,Ribociclib,False,3,False,10,standard
+K14,K,14,patient_2,Capivasertib,False,2,False,5,standard
+K15,K,15,patient_2,Alpelisib,False,3,False,7.5,standard
+K16,K,16,patient_2,Fluorouracil,False,3,False,30,standard
+K17,K,17,patient_2,Staurosporine (high) + Etoposide,False,3,True,1/0.5,standard
+K18,K,18,patient_2,Cediranib,False,2,False,5,standard
+K19,K,19,patient_2,Ribociclib + Letrozole,False,3,True,10/2.5,standard
 K20,K,20,patient_2,DMSO,True,9,False,,standard
-K21,K,21,patient_2,Vinblastine,False,2,False,0.5,standard
-K22,K,22,patient_2,Ribociclib + Letrozole,False,2,True,10/2.5,standard
-L03,L,3,patient_1,Osimertinib,False,3,False,5,standard
-L04,L,4,patient_1,Mirvetuximab Soravtansine,False,2,False,0.025,standard
-L05,L,5,patient_1,Trametinib,False,3,False,2.5,standard
-L06,L,6,patient_1,Capivasertib,False,3,False,5,standard
+K21,K,21,patient_2,Erlotinib,False,2,False,5,standard
+K22,K,22,patient_2,Cobimetinib,False,3,False,2.5,standard
+L03,L,3,patient_1,Ribociclib,False,2,False,10,standard
+L04,L,4,patient_1,Lenvatinib,False,3,False,5,standard
+L05,L,5,patient_1,Everolimus,False,2,False,5,standard
+L06,L,6,patient_1,Lenvatinib + Pembrolizumab,False,3,True,5/0.034,standard
 L07,L,7,patient_1,DMSO,True,10,False,,standard
-L08,L,8,patient_1,Staurosporine (low) + Etoposide,False,3,True,0.2/0.5,standard
-L09,L,9,patient_1,Lenvatinib,False,3,False,5,standard
-L10,L,10,patient_1,Durvalumab,False,3,False,0.034,standard
-L11,L,11,patient_1,Lenvatinib + Pembrolizumab,False,3,True,5/0.034,standard
+L08,L,8,patient_1,Capivasertib,False,2,False,5,standard
+L09,L,9,patient_1,Erlotinib,False,2,False,5,standard
+L10,L,10,patient_1,Cyclophosphamide,False,3,False,30,standard
+L11,L,11,patient_1,Cobimetinib,False,2,False,2.5,standard
 L12,L,12,OVCAR3,Staurosporine (low) + Etoposide,True,3,True,0.2/0.5,standard
 L13,L,13,patient_2,Pembrolizumab,True,3,False,0.034,standard
-L14,L,14,patient_2,Alpelisib,False,2,False,7.5,standard
-L15,L,15,patient_2,Erlotinib,False,3,False,5,standard
-L16,L,16,patient_2,Carboplatin + Pembrolizumab,False,3,True,15/0.034,standard
-L17,L,17,patient_2,Palbociclib,False,3,False,10,standard
+L14,L,14,patient_2,Dasatinib,False,2,False,2.5,standard
+L15,L,15,patient_2,Olaparib,False,3,False,15,standard
+L16,L,16,patient_2,Palbociclib,False,3,False,10,standard
+L17,L,17,patient_2,Palbociclib + Letrozole,False,3,True,10/2.5,standard
 L18,L,18,patient_2,DMSO,True,10,False,,standard
-L19,L,19,patient_2,Fluorouracil,False,3,False,30,standard
-L20,L,20,patient_2,Abemaciclib,False,3,False,5,standard
-L21,L,21,patient_2,Niraparib,False,3,False,15,standard
-L22,L,22,patient_2,Lenvatinib,False,3,False,5,standard
-M03,M,3,patient_1,Mirvetuximab Soravtansine,False,3,False,0.025,standard
-M04,M,4,patient_1,Abemaciclib,False,3,False,5,standard
-M05,M,5,patient_1,Carboplatin + Pembrolizumab,False,3,True,15/0.034,standard
-M06,M,6,patient_1,Palbociclib,False,3,False,10,standard
-M07,M,7,patient_1,Ribociclib + Letrozole,False,3,True,10/2.5,standard
-M08,M,8,patient_1,Carboplatin,False,3,False,15,standard
-M09,M,9,patient_1,Cediranib,False,3,False,5,standard
+L19,L,19,patient_2,Mirvetuximab Soravtansine,False,3,False,0.025,standard
+L20,L,20,patient_2,Osimertinib,False,3,False,5,standard
+L21,L,21,patient_2,Lenvatinib + Pembrolizumab,False,3,True,5/0.034,standard
+L22,L,22,patient_2,Lenvatinib,False,2,False,5,standard
+M03,M,3,patient_1,Carboplatin + Pembrolizumab,False,3,True,15/0.034,standard
+M04,M,4,patient_1,Carboplatin,False,3,False,15,standard
+M05,M,5,patient_1,Mirvetuximab Soravtansine,False,3,False,0.025,standard
+M06,M,6,patient_1,Niraparib,False,3,False,15,standard
+M07,M,7,patient_1,Capivasertib,False,3,False,5,standard
+M08,M,8,patient_1,Fluorouracil,False,3,False,30,standard
+M09,M,9,patient_1,Ribociclib,False,3,False,10,standard
 M10,M,10,patient_1,DMSO,True,11,False,,standard
-M11,M,11,patient_1,Ribociclib,False,3,False,10,standard
+M11,M,11,patient_1,Trametinib,False,3,False,2.5,standard
 M12,M,12,patient_1,Vinorelbine,True,3,False,0.5,standard
 M13,M,13,OVCAR3,Staurosporine (high) + Etoposide,True,3,True,1/0.5,standard
-M14,M,14,patient_2,Staurosporine (high) + Etoposide,False,3,True,1/0.5,standard
-M15,M,15,patient_2,Lenvatinib + Pembrolizumab,False,3,True,5/0.034,standard
-M16,M,16,patient_2,Carboplatin + Paclitaxel,False,3,True,15/0.5,standard
-M17,M,17,patient_2,Vinblastine,False,3,False,0.5,standard
-M18,M,18,patient_2,Everolimus,False,3,False,5,standard
-M19,M,19,patient_2,Letrozole,False,3,False,2.5,standard
-M20,M,20,patient_2,Paclitaxel,False,3,False,0.5,standard
+M14,M,14,patient_2,Vinblastine,False,3,False,0.5,standard
+M15,M,15,patient_2,Paclitaxel,False,3,False,0.5,standard
+M16,M,16,patient_2,Trametinib,False,3,False,2.5,standard
+M17,M,17,patient_2,Niraparib,False,3,False,15,standard
+M18,M,18,patient_2,Gemcitabine,False,3,False,2.5,standard
+M19,M,19,patient_2,Erlotinib,False,3,False,5,standard
+M20,M,20,patient_2,Carboplatin + Paclitaxel,False,3,True,15/0.5,standard
 M21,M,21,patient_2,DMSO,True,11,False,,standard
-M22,M,22,patient_2,Cyclophosphamide,False,3,False,30,standard
+M22,M,22,patient_2,Letrozole,False,3,False,2.5,standard
 N03,N,3,patient_1,DMSO,True,12,False,,standard
-N04,N,4,patient_1,Olaparib,False,3,False,15,standard
-N05,N,5,patient_1,Erlotinib,False,3,False,5,standard
-N06,N,6,patient_1,Gemcitabine,False,3,False,2.5,standard
-N07,N,7,patient_1,Vinblastine,False,3,False,0.5,standard
-N08,N,8,patient_1,Palbociclib + Letrozole,False,3,True,10/2.5,standard
-N09,N,9,patient_1,Cyclophosphamide,False,3,False,30,standard
-N10,N,10,patient_1,Trastuzumab Deruxtecan,False,3,False,0.025,standard
-N11,N,11,patient_1,Carboplatin + Paclitaxel,False,3,True,15/0.5,standard
+N04,N,4,patient_1,Erlotinib,False,3,False,5,standard
+N05,N,5,patient_1,Durvalumab,False,3,False,0.034,standard
+N06,N,6,patient_1,Vinblastine,False,3,False,0.5,standard
+N07,N,7,patient_1,Ribociclib + Letrozole,False,3,True,10/2.5,standard
+N08,N,8,patient_1,Trastuzumab Deruxtecan,False,3,False,0.025,standard
+N09,N,9,patient_1,Gemcitabine,False,3,False,2.5,standard
+N10,N,10,patient_1,Cobimetinib,False,3,False,2.5,standard
+N11,N,11,patient_1,Everolimus,False,3,False,5,standard
 N12,N,12,OVCAR3,DMSO,True,6,False,,standard
 N13,N,13,patient_2,Vinorelbine,True,3,False,0.5,standard
 N14,N,14,patient_2,DMSO,True,12,False,,standard
-N15,N,15,patient_2,Staurosporine (low) + Etoposide,False,3,True,0.2/0.5,standard
-N16,N,16,patient_2,Gemcitabine,False,3,False,2.5,standard
-N17,N,17,patient_2,Olaparib,False,3,False,15,standard
+N15,N,15,patient_2,Lenvatinib,False,3,False,5,standard
+N16,N,16,patient_2,Everolimus,False,3,False,5,standard
+N17,N,17,patient_2,Cyclophosphamide,False,3,False,30,standard
 N18,N,18,patient_2,Durvalumab,False,3,False,0.034,standard
-N19,N,19,patient_2,Alpelisib,False,3,False,7.5,standard
-N20,N,20,patient_2,Mirvetuximab Soravtansine,False,3,False,0.025,standard
-N21,N,21,patient_2,Ribociclib + Letrozole,False,3,True,10/2.5,standard
-N22,N,22,patient_2,Capivasertib,False,3,False,5,standard
+N19,N,19,patient_2,Dasatinib,False,3,False,2.5,standard
+N20,N,20,patient_2,Cediranib,False,3,False,5,standard
+N21,N,21,patient_2,Capivasertib,False,3,False,5,standard
+N22,N,22,patient_2,Carboplatin,False,3,False,15,standard
