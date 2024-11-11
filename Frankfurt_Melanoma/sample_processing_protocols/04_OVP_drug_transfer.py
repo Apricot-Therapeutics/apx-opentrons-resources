@@ -70,7 +70,7 @@ def distribute(volume: int,
 
 # metadata
 metadata = {
-    "protocolName": "OVP Drug Transfer to 384-well Cell Plate",
+    "protocolName": "Frankfurt Melanoma Drug Transfer to 384-well Cell Plate",
     "description": """This protocol is used to transfer drugs from a
      pre-prepared 96-well drug plate to a 384 well plate containing patient
      cells (in 45 ul of media) in a randomized layout.""",
@@ -107,47 +107,71 @@ def add_parameters(parameters: protocol_api.Parameters):
     default=False,
     )
 
+    parameters.add_int(
+    variable_name="ovarian_plate_position",
+    display_name="OVP Drug Position",
+    description="Which slot on the OT2 contains the ovarian cancer drug plate v1.3?",
+    minimum=3,
+    maximum=11,
+    default=7,
+    )
+
+    parameters.add_int(
+    variable_name="melanoma_plate_position",
+    display_name="Melanoma Drug Position",
+    description="Which slot on the OT2 contains the melanoma drug plate v1.0?",
+    minimum=3,
+    maximum=11,
+    default=8,
+    )
+
+
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
 
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 1)
-    drug_plate = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", 5)
-    cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
+    #drug_plate_melanoma = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", protocol.params.melanoma_plate_position)
+    #drug_plate_ovarian = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", protocol.params.ovarian_plate_position)
+    #cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # for local testing
-    #drug_plate = protocol.load_labware("nest_96_wellplate_200ul_flat", 2)
-    #cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 3)
+    drug_plate_melanoma = protocol.load_labware("nest_96_wellplate_200ul_flat", protocol.params.melanoma_plate_position)
+    drug_plate_ovarian = protocol.load_labware("nest_96_wellplate_200ul_flat", protocol.params.ovarian_plate_position)
+    cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 6)
 
     # optional: set liquids
     sample = protocol.define_liquid(name="sample", display_color="#1c03fc",
                                     description="sample to which to add drugs")
     drugs = protocol.define_liquid(name="drugs", display_color="#fcba03",
                                  description="drugs to be transferred")
-
+    
     # load some metadata we need later
     if platform == "win32":
-        # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v1.3.csv")
-        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v1.2.csv")
+        # load the drug layout on drug master plate
+        drug_plate_metadata_ovarian = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\Frankfurt_Melanoma\metadata\drug_plate_metadata_ovarian_v1.3.csv")
+        drug_plate_metadata_melanoma = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\Frankfurt_Melanoma\metadata\drug_plate_metadata_v1.0.csv")
+        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\Frankfurt_Melanoma\metadata\plate_metadata_v1.0.csv")
     elif platform == "linux":
-        # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/drug_plate_metadata_v1.3.csv")
-        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.2.csv")
+        # load the drug layout on drug master plate
+        drug_plate_metadata_ovarian = pd.read_csv("/data/user_storage/apricot_data/Frankfurt_Melanoma/drug_plate_metadata_ovarian_v1.3.csv")
+        drug_plate_metadata_melanoma = pd.read_csv("/data/user_storage/apricot_data/Frankfurt_Melanoma/drug_plate_metadata_v1.0.csv")
+        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/Frankfurt_Melanoma/plate_metadata_v1.0.csv")
 
     # process one or two patient samples
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
             cell_plate_metadata["sample"] != "patient_2"]
-    
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
 
     # load drugs into 96-well plate
-    for i, well in drug_plate_metadata.iterrows():
-        well = drug_plate[well.row + str(well.col)]
+    for i, well in drug_plate_metadata_ovarian.iterrows():
+        well = drug_plate_ovarian[well.row + str(well.col)]
+        well.load_liquid(liquid=drugs, volume=1000)
+
+    # load drugs into 96-well plate
+    for i, well in drug_plate_metadata_melanoma.iterrows():
+        well = drug_plate_melanoma[well.row + str(well.col)]
         well.load_liquid(liquid=drugs, volume=1000)
 
     for i, well in cell_plate_metadata.iterrows():
@@ -163,94 +187,105 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette.well_bottom_clearance.dispense = 2.5
 
     # get unique names of drugs and whether they are combinations
-    drug_list = cell_plate_metadata[["condition", "combination"]]
-    drug_list = drug_list.drop_duplicates()
+    drug_list_all = cell_plate_metadata[["condition", "combination", 'drug_panel']]
+    drug_list_all = drug_list_all.drop_duplicates()
 
-    single_drugs = drug_list.loc[drug_list.combination == False]
-    combination_drugs = drug_list.loc[drug_list.combination == True]
+    for drug_panel in drug_list_all['drug_panel'].unique():
 
-    # distribute single drugs
-    for i, drug in single_drugs.iterrows():
-        # get source well
-        source = drug_plate_metadata.loc[
-            drug_plate_metadata.condition == drug.condition]
-        source = source.loc[source["sample"] == "1000x"]
+        if drug_panel == 'melanoma':
+            drug_plate = drug_plate_melanoma
+            drug_plate_metadata = drug_plate_metadata_melanoma
+        elif drug_panel == 'ovarian':
+            drug_plate = drug_plate_ovarian
+            drug_plate_metadata = drug_plate_metadata_ovarian
 
-        # assemble name of source well (opentrons take A1 instead of A01)
-        source_well = source.row.values[0] + str(source.col.values[0])
-        print(f"source well: {source_well}")
+        drug_list = drug_list_all.loc[drug_list_all['drug_panel'] == drug_panel]
+        single_drugs = drug_list.loc[drug_list.combination == False]
+        combination_drugs = drug_list.loc[drug_list.combination == True]
 
-        # collect destination wells
-        dest_wells = cell_plate_metadata.loc[
-            cell_plate_metadata.condition == drug.condition]
-        # put together names for destination wells
-        dest_wells = [well.row + str(well.col) for i, well
-                      in dest_wells.iterrows()]
-        
-        destinations = [cell_plate[well] for well in dest_wells]
-        print(f"Distributing {drug.condition} from well {source_well} "
-              f"to wells {dest_wells} on 384-well cell plate")
+        # distribute single drugs
+        for i, drug in single_drugs.iterrows():
+            print(f"Distributing {drug.condition}")
+            # get source well
+            source = drug_plate_metadata.loc[
+                drug_plate_metadata.condition == drug.condition]
+            source = source.loc[source["sample"] == "1000x"]
 
-        distribute(
-            volume=5,
-            source=drug_plate[source_well],
-            dest=destinations,
-            dispense_delay=0.5,
-            pipette=pipette,
-            residual_volume=5,
-            protocol=protocol,
-        )
+            # assemble name of source well (opentrons take A1 instead of A01)
+            source_well = source.row.values[0] + str(source.col.values[0])
+            print(f"source well: {source_well}")
+
+            # collect destination wells
+            dest_wells = cell_plate_metadata.loc[
+                cell_plate_metadata.condition == drug.condition]
+            # put together names for destination wells
+            dest_wells = [well.row + str(well.col) for i, well
+                        in dest_wells.iterrows()]
+            
+            destinations = [cell_plate[well] for well in dest_wells]
+            print(f"Distributing {drug.condition} from well {source_well} "
+                f"to wells {dest_wells} on 384-well cell plate")
+
+            distribute(
+                volume=5,
+                source=drug_plate[source_well],
+                dest=destinations,
+                dispense_delay=0.5,
+                pipette=pipette,
+                residual_volume=5,
+                protocol=protocol,
+            )
 
 
-    # distribute combination drugs
-    for i, drug in combination_drugs.iterrows():
-        # get source wells
-        drug_1 = drug.condition.split(" + ")[0]
-        drug_2 = drug.condition.split(" + ")[1]
+        # distribute combination drugs
+        for i, drug in combination_drugs.iterrows():
+            # get source wells
+            drug_1 = drug.condition.split(" + ")[0]
+            drug_2 = drug.condition.split(" + ")[1]
 
-        source_1 = drug_plate_metadata.loc[
-            drug_plate_metadata.condition == drug_1]
-        source_1 = source_1.loc[source_1["sample"] == "2000x"]
+            source_1 = drug_plate_metadata.loc[
+                drug_plate_metadata.condition == drug_1]
+            source_1 = source_1.loc[source_1["sample"] == "2000x"]
 
-        source_2 = drug_plate_metadata.loc[
-            drug_plate_metadata.condition == drug_2]
-        source_2 = source_2.loc[source_2["sample"] == "2000x"]
+            source_2 = drug_plate_metadata.loc[
+                drug_plate_metadata.condition == drug_2]
+            source_2 = source_2.loc[source_2["sample"] == "2000x"]
 
-        # assemble name of source well (opentrons take A1 instead of A01)
-        source_well_1 = source_1.row.values[0] + str(
-            source_1.col.values[0])
-        source_well_2 = source_2.row.values[0] + str(
-            source_2.col.values[0])
+            # assemble name of source well (opentrons take A1 instead of A01)
+            source_well_1 = source_1.row.values[0] + str(
+                source_1.col.values[0])
+            source_well_2 = source_2.row.values[0] + str(
+                source_2.col.values[0])
 
-        # collect destination wells
-        dest_wells = cell_plate_metadata.loc[
-            cell_plate_metadata.condition == drug.condition]
-        # put together names for destination wells
-        dest_wells = [well.row + str(well.col) for i, well
-                      in dest_wells.iterrows()]
+            # collect destination wells
+            dest_wells = cell_plate_metadata.loc[
+                cell_plate_metadata.condition == drug.condition]
+            # put together names for destination wells
+            dest_wells = [well.row + str(well.col) for i, well
+                        in dest_wells.iterrows()]
 
-        destinations = [cell_plate[well] for well in dest_wells]
-        
-        # iterate over destination sublists and aspirate
-        distribute(
-            volume=2.5,
-            source=drug_plate[source_well_1],
-            dest=destinations,
-            dispense_delay=0.5,
-            pipette=pipette,
-            residual_volume=5,
-            protocol=protocol,
-        )
+            destinations = [cell_plate[well] for well in dest_wells]
+            
+            # iterate over destination sublists and aspirate
+            distribute(
+                volume=2.5,
+                source=drug_plate[source_well_1],
+                dest=destinations,
+                dispense_delay=0.5,
+                pipette=pipette,
+                residual_volume=5,
+                protocol=protocol,
+            )
 
-        distribute(
-            volume=2.5,
-            source=drug_plate[source_well_2],
-            dest=destinations,
-            dispense_delay=0.5,
-            pipette=pipette,
-            residual_volume=5,
-            protocol=protocol,
-        )
+            distribute(
+                volume=2.5,
+                source=drug_plate[source_well_2],
+                dest=destinations,
+                dispense_delay=0.5,
+                pipette=pipette,
+                residual_volume=5,
+                protocol=protocol,
+            )
 
     
 
