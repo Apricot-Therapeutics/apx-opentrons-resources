@@ -1,0 +1,103 @@
+well,row,col,sample,condition,exclude_from_randomization,replicate,combination,final_concentration_uM,drug_panel
+C03,C,3,patient_sample,DMSO,True,1,False,,ovarian
+C04,C,4,patient_sample,Dabrafenib,False,1,False,2.5,melanoma
+C05,C,5,patient_sample,Olaparib,False,1,False,10,ovarian
+C06,C,6,patient_sample,Abemaciclib,False,1,False,10,ovarian
+C07,C,7,patient_sample,Vemurafenib,False,1,False,2.5,melanoma
+C08,C,8,patient_sample,Carboplatin,False,1,False,10,ovarian
+C09,C,9,patient_sample,Alpelisib,False,1,False,5,ovarian
+C10,C,10,patient_sample,Paclitaxel,False,1,False,0.5,ovarian
+C11,C,11,patient_sample,Ulixertinib,False,1,False,5,melanoma
+D03,D,3,patient_sample,Crizotinib,False,1,False,5,ovarian
+D04,D,4,patient_sample,Trametinib,False,1,False,2.5,melanoma
+D05,D,5,patient_sample,Sorafenib,False,1,False,5,ovarian
+D06,D,6,patient_sample,Ribociclib,False,1,False,10,ovarian
+D07,D,7,patient_sample,Trametinib + Erlotinib,False,1,True,5.0/5.0,ovarian
+D08,D,8,patient_sample,Capivasertib,False,1,False,5,melanoma
+D09,D,9,patient_sample,Staurosporine,False,1,False,2.5,ovarian
+D10,D,10,patient_sample,DMSO,True,2,False,,ovarian
+E03,E,3,patient_sample,Avutometinib,False,1,False,2.5,melanoma
+E04,E,4,patient_sample,DMSO,True,3,False,,ovarian
+E05,E,5,patient_sample,Dabrafenib + Trametinib,False,1,True,2.5 / 2.5,melanoma
+E06,E,6,patient_sample,Erlotinib,False,1,False,5,ovarian
+E07,E,7,patient_sample,Cobimetinib,False,1,False,2.5,melanoma
+E08,E,8,patient_sample,Dasatinib,False,1,False,5,ovarian
+E09,E,9,patient_sample,Vemurafenib,False,2,False,2.5,melanoma
+E10,E,10,patient_sample,Temozolomide,False,1,False,,melanoma
+E11,E,11,patient_sample,Carboplatin + Paclitaxel,False,1,True,10 / 0.5,ovarian
+F03,F,3,patient_sample,Sorafenib,False,2,False,5,ovarian
+F04,F,4,patient_sample,Everolimus,False,1,False,5,ovarian
+F05,F,5,patient_sample,Trametinib,False,2,False,2.5,melanoma
+F06,F,6,patient_sample,Tovorafenib,False,1,False,2.5,melanoma
+F07,F,7,patient_sample,Olaparib,False,2,False,10,ovarian
+F08,F,8,patient_sample,Staurosporine,False,2,False,2.5,ovarian
+F09,F,9,patient_sample,DMSO,True,4,False,,ovarian
+F10,F,10,patient_sample,Dacarbazine,False,1,False,,melanoma
+G03,G,3,patient_sample,Trametinib,False,3,False,2.5,melanoma
+G04,G,4,patient_sample,Trametinib + Erlotinib,False,2,True,5.0/5.0,ovarian
+G05,G,5,patient_sample,Dabrafenib + Trametinib,False,2,True,2.5 / 2.5,melanoma
+G06,G,6,patient_sample,DMSO,True,5,False,,ovarian
+G07,G,7,patient_sample,Gemcitabine,False,1,False,2.5,ovarian
+G08,G,8,patient_sample,Crizotinib,False,2,False,5,ovarian
+G09,G,9,patient_sample,Alpelisib,False,2,False,5,ovarian
+G10,G,10,patient_sample,Ulixertinib,False,2,False,5,melanoma
+G11,G,11,patient_sample,Carboplatin + Paclitaxel,False,2,True,10 / 0.5,ovarian
+H03,H,3,patient_sample,Sorafenib,False,3,False,5,ovarian
+H04,H,4,patient_sample,Neratinib,False,1,False,5,ovarian
+H05,H,5,patient_sample,Flouroracil,False,1,False,30,ovarian
+H06,H,6,patient_sample,Dacarbazine,False,2,False,,melanoma
+H07,H,7,patient_sample,DMSO,True,6,False,,ovarian
+H08,H,8,patient_sample,Vemurafenib + Cobimetinib,False,1,True,2.5 / 2.5,melanoma
+H09,H,9,patient_sample,Cediranib,False,1,False,5,ovarian
+H10,H,10,patient_sample,Temozolomide,False,2,False,,melanoma
+I03,I,3,patient_sample,Ulixertinib,False,3,False,5,melanoma
+I04,I,4,patient_sample,Cobimetinib,False,2,False,2.5,melanoma
+I05,I,5,patient_sample,Cediranib,False,2,False,5,ovarian
+I06,I,6,patient_sample,Everolimus,False,2,False,5,ovarian
+I07,I,7,patient_sample,Flouroracil,False,2,False,30,ovarian
+I08,I,8,patient_sample,DMSO,True,7,False,,ovarian
+I09,I,9,patient_sample,Gemcitabine,False,2,False,2.5,ovarian
+I10,I,10,patient_sample,Erlotinib,False,2,False,5,ovarian
+I11,I,11,patient_sample,Dacarbazine,False,3,False,,melanoma
+J03,J,3,patient_sample,Ribociclib,False,2,False,10,ovarian
+J04,J,4,patient_sample,Neratinib,False,2,False,5,ovarian
+J05,J,5,patient_sample,DMSO,True,8,False,,ovarian
+J06,J,6,patient_sample,Carboplatin,False,2,False,10,ovarian
+J07,J,7,patient_sample,Capivasertib,False,2,False,5,melanoma
+J08,J,8,patient_sample,Paclitaxel,False,2,False,0.5,ovarian
+J09,J,9,patient_sample,Avutometinib,False,2,False,2.5,melanoma
+J10,J,10,patient_sample,Carboplatin + Paclitaxel,False,3,True,10 / 0.5,ovarian
+K03,K,3,patient_sample,Paclitaxel,False,3,False,0.5,ovarian
+K04,K,4,patient_sample,Alpelisib,False,3,False,5,ovarian
+K05,K,5,patient_sample,Everolimus,False,3,False,5,ovarian
+K06,K,6,patient_sample,Trametinib + Erlotinib,False,3,True,5.0/5.0,ovarian
+K07,K,7,patient_sample,Tovorafenib,False,2,False,2.5,melanoma
+K08,K,8,patient_sample,Abemaciclib,False,2,False,10,ovarian
+K09,K,9,patient_sample,Temozolomide,False,3,False,,melanoma
+K10,K,10,patient_sample,DMSO,True,9,False,,ovarian
+K11,K,11,patient_sample,Vemurafenib,False,3,False,2.5,melanoma
+L03,L,3,patient_sample,DMSO,True,10,False,,ovarian
+L04,L,4,patient_sample,Dabrafenib,False,2,False,2.5,melanoma
+L05,L,5,patient_sample,Vemurafenib + Cobimetinib,False,2,True,2.5 / 2.5,melanoma
+L06,L,6,patient_sample,Staurosporine,False,3,False,2.5,ovarian
+L07,L,7,patient_sample,Dasatinib,False,2,False,5,ovarian
+L08,L,8,patient_sample,Carboplatin,False,3,False,10,ovarian
+L09,L,9,patient_sample,Crizotinib,False,3,False,5,ovarian
+L10,L,10,patient_sample,Erlotinib,False,3,False,5,ovarian
+M03,M,3,patient_sample,Flouroracil,False,3,False,30,ovarian
+M04,M,4,patient_sample,Cobimetinib,False,3,False,2.5,melanoma
+M05,M,5,patient_sample,Cediranib,False,3,False,5,ovarian
+M06,M,6,patient_sample,Vemurafenib + Cobimetinib,False,3,True,2.5 / 2.5,melanoma
+M07,M,7,patient_sample,Dabrafenib,False,3,False,2.5,melanoma
+M08,M,8,patient_sample,Abemaciclib,False,3,False,10,ovarian
+M09,M,9,patient_sample,Dabrafenib + Trametinib,False,3,True,2.5 / 2.5,melanoma
+M10,M,10,patient_sample,Tovorafenib,False,3,False,2.5,melanoma
+M11,M,11,patient_sample,DMSO,True,11,False,,ovarian
+N03,N,3,patient_sample,DMSO,True,12,False,,ovarian
+N04,N,4,patient_sample,Avutometinib,False,3,False,2.5,melanoma
+N05,N,5,patient_sample,Olaparib,False,3,False,10,ovarian
+N06,N,6,patient_sample,Gemcitabine,False,3,False,2.5,ovarian
+N07,N,7,patient_sample,Dasatinib,False,3,False,5,ovarian
+N08,N,8,patient_sample,Capivasertib,False,3,False,5,melanoma
+N09,N,9,patient_sample,Neratinib,False,3,False,5,ovarian
+N10,N,10,patient_sample,Ribociclib,False,3,False,10,ovarian
