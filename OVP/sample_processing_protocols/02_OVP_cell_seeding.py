@@ -235,9 +235,9 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette_20ul.well_bottom_clearance.aspirate = 1
     pipette_20ul.well_bottom_clearance.dispense = 2
 
-    for sample_type in cell_plate_metadata["sample"].unique():
+    for sample_type in cell_plate_metadata["sample_name"].unique():
 
-        current_metadata = cell_plate_metadata.loc[cell_plate_metadata["sample"] == sample_type]
+        current_metadata = cell_plate_metadata.loc[cell_plate_metadata["sample_name"] == sample_type]
 
         dest_wells = [[row + str(col) for col in current_metadata.col.unique()] for row in ["A", "B"]]
         dest_wells = list(itertools.chain.from_iterable(dest_wells))
