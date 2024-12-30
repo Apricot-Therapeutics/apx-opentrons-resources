@@ -57,11 +57,12 @@ def run(protocol: protocol_api.ProtocolContext):
     # load drugs into 96-well plate
     for i, well in drug_plate_metadata.iterrows():
         well = drug_plate[well.row + str(well.col)]
-        well.load_liquid(liquid=drugs, volume=5)
+        well.load_liquid(liquid=drugs, volume=3)
 
     # load media into reservoir
-    reservoir['A1'].load_liquid(liquid=media, volume=13000)
-    reservoir['A2'].load_liquid(liquid=media, volume=13000)
+    reservoir['A1'].load_liquid(liquid=media, volume=12000)
+    reservoir['A2'].load_liquid(liquid=media, volume=12000)
+    reservoir['A3'].load_liquid(liquid=media, volume=12000)
 
     # initialize pipette
     pipette = protocol.load_instrument("p300_multi_gen2", "left",
@@ -84,7 +85,14 @@ def run(protocol: protocol_api.ProtocolContext):
     source_well = "A2"
     pipette.transfer(volume=297,
                           source=reservoir[source_well],
-                          dest=destinations[5:],
+                          dest=destinations[5:9],
                           mix_after=(3, 200),
                           new_tip='always')
+
+    source_well = "A3"
+    pipette.transfer(volume=297,
+                     source=reservoir[source_well],
+                     dest=destinations[9:],
+                     mix_after=(3, 200),
+                     new_tip='always')
 
