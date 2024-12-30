@@ -128,18 +128,16 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v2.0.csv")
         cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v2.0.csv")
 
     elif platform == "linux":
         # load the drug layout on drug master plate and final 384-well plate
-        drug_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/OVP/drug_plate_metadata_v2.0.csv")
         cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/OVP/plate_metadata_v2.0.csv")
 
     # process one or two patient samples
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
-            cell_plate_metadata["sample"] != "patient_2"]
+            cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
     
     # include or exclude experimental drugs
     if protocol.params.exclude_experimental_drugs:

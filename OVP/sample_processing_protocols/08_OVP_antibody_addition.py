@@ -149,7 +149,7 @@ def run(protocol: protocol_api.ProtocolContext):
     # process one or two patient samples
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
-            cell_plate_metadata["sample"] != "patient_2"]
+            cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
 
     # load antibodies into 96-well plate
     for well in antibody_plate.columns()[(protocol.params.antibody_source_column - 1)]:
