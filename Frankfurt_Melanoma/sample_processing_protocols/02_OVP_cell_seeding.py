@@ -121,22 +121,9 @@ def add_parameters(parameters: protocol_api.Parameters):
     default="right"
     )
 
-    parameters.add_bool(
-    variable_name="exclude_experimental_drugs",
-    display_name="Exclude experimental drugs",
-    description="Turn on if the experimental drug set should be excluded.",
-    default=False,
-    )
-
-    parameters.add_bool(
-    variable_name="process_full_plate",
-    display_name="Process two patient samples",
-    description="Turn on if there are two patient samples on the plate (full plate).",
-    default=False,
-    )
 
     parameters.add_int(
-        variable_name="sample_1_col",
+        variable_name="sample_col",
         display_name="Patient 1 reservoir column",
         description="The reservoir column containing cells from patient 1",
         default=1,
@@ -145,28 +132,10 @@ def add_parameters(parameters: protocol_api.Parameters):
     )
 
     parameters.add_int(
-        variable_name="cell_line_col",
-        display_name="Cell line reservoir column",
-        description="The reservoir column containing OVCAR3 cells",
-        default=3,
-        minimum=1,
-        maximum=12,
-    )
-
-    parameters.add_int(
-        variable_name="sample_2_col",
-        display_name="Patient 2 reservoir column",
-        description="The reservoir column containing cells from patient 2. Only used if two patients are processed.",
-        default=5,
-        minimum=1,
-        maximum=12,
-    )
-
-    parameters.add_int(
         variable_name="rpmi_col",
         display_name="RPMI reservoir column",
         description="The reservoir column containing RPMI to fill up wells adjacent to sample wells.",
-        default=7,
+        default=2,
         minimum=1,
         maximum=12,
     )
@@ -183,42 +152,27 @@ def run(protocol: protocol_api.ProtocolContext):
     reservoir = protocol.load_labware("nest_12_reservoir_15ml", 5)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
+    # for local testing
+    #cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 6)
+
     # optional: set liquids
     patient_1 = protocol.define_liquid(name="Patient 1 sample", display_color="#1c03fc",
                                     description="Cells from patient 1")
-    patient_2 = protocol.define_liquid(name="Patient 2 sample", display_color="#1c04fc",
-                                    description="Cells from patient 2")
-    ovcar3 = protocol.define_liquid(name="OVCAR3 sample", display_color="#1c05fc",
-                                    description="OVCAR3 cells")
     rpmi = protocol.define_liquid(name="RPMI medium", display_color="#1c06fc",
                                     description="RPMI medium to fill wells adjacent to sample wells")
 
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate and final 384-well plate
-        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v1.2.csv")
+        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\Frankfurt_Melanoma\metadata\plate_metadata_v1.0.csv")
 
     elif platform == "linux":
         # load the drug layout on drug master plate and final 384-well plate
-        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/plate_metadata_v1.2.csv")
-
-    # process one or two patient samples
-    if protocol.params.process_full_plate == False:
-        cell_plate_metadata = cell_plate_metadata.loc[
-            cell_plate_metadata["sample"] != "patient_2"]
-    
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
+        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/Frankfurt_Melanoma/plate_metadata_v1.0.csv")
 
     # load media into reservoir
-    reservoir['A' + str(protocol.params.sample_1_col)].load_liquid(liquid=patient_1, volume=5000)
-    reservoir['A' + str(protocol.params.cell_line_col)].load_liquid(liquid=ovcar3, volume=5000)
+    reservoir['A' + str(protocol.params.sample_col)].load_liquid(liquid=patient_1, volume=5000)
     reservoir['A' + str(protocol.params.rpmi_col)].load_liquid(liquid=rpmi, volume=5000)
-
-    # if second patient sample is provided, include it:
-    if protocol.params.process_full_plate:
-        reservoir['A' + str(protocol.params.sample_2_col)].load_liquid(liquid=patient_2, volume=5000)
 
     # initialize pipette
     pipette = protocol.load_instrument("p300_multi_gen2", 
@@ -235,67 +189,53 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette_20ul.well_bottom_clearance.aspirate = 1
     pipette_20ul.well_bottom_clearance.dispense = 2
 
-    for sample_type in cell_plate_metadata["sample"].unique():
+    dest_wells = []
 
-        current_metadata = cell_plate_metadata.loc[cell_plate_metadata["sample"] == sample_type]
+    start_row_map = {"A": "C", "B": "D"}
 
-        dest_wells = [[row + str(col) for col in current_metadata.col.unique()] for row in ["A", "B"]]
-        dest_wells = list(itertools.chain.from_iterable(dest_wells))
-        destinations = [cell_plate[well] for well in dest_wells]
+    
+    for col in cell_plate_metadata.col.unique():
+        for row in ["A", "B"]:
+            if start_row_map[row] + f"{col:02d}" in cell_plate_metadata["well"].values:
+                dest_wells.append(row + str(col))
 
-        if sample_type == "patient_1":
-            source_well = 'A' + str(protocol.params.sample_1_col)
-        elif sample_type == "patient_2":
-            source_well = 'A' + str(protocol.params.sample_2_col)
-        elif sample_type == "OVCAR3":
-            source_well = 'A' + str(protocol.params.cell_line_col)
+    protocol.comment(f"Will pipette the following wells: {dest_wells}")
+    
+    #dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
+    #dest_wells = list(itertools.chain.from_iterable(dest_wells))
+    destinations = [cell_plate[well] for well in dest_wells]
 
-        pipette.pick_up_tip()
+    pipette.pick_up_tip()
 
-        distribute(
-            volume=45,
-            source=reservoir[source_well],
-            dest=destinations,
-            aspirate_delay=1.0,
-            dispense_delay=0,
-            residual_volume=20,
-            n_mix=3,
-            pipette=pipette,
-            protocol=protocol,
-            residual_dispense_location=reservoir[source_well],
-            residual_dispense_height_from_bottom=3.5,
-            touch_tip=True,
-            touch_tip_radius=0.4,
-            touch_tip_v_offset=-5,
-            ignore_tips=True
-            )
-        
-        pipette.drop_tip()
+    source_well = 'A' + str(protocol.params.sample_col)
+
+    distribute(
+        volume=45,
+        source=reservoir[source_well],
+        dest=destinations,
+        aspirate_delay=1.0,
+        dispense_delay=0,
+        residual_volume=20,
+        n_mix=3,
+        pipette=pipette,
+        protocol=protocol,
+        residual_dispense_location=reservoir[source_well],
+        residual_dispense_height_from_bottom=3.5,
+        touch_tip=True,
+        touch_tip_radius=0.4,
+        touch_tip_v_offset=-5,
+        ignore_tips=True
+        )
+    
+    pipette.drop_tip()
 
     # after seeding is done, distribute RPMI to wells adjacent to wells containing media
-    if (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == False):
-        destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
-        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "22"]]
-        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
-        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
+    """ destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
+    destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in [str(cell_plate_metadata["col"].min()-1), str(cell_plate_metadata["col"].max()+1)]]
+    destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
+    destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
 
-    elif (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == True):
-        destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
-        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "9", "11", "19"]]
-        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
-        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
-
-    elif (protocol.params.process_full_plate == False) & (protocol.params.exclude_experimental_drugs == False):
-        destinations_rows = [[row + str(col) for col in range(2, 14)] for row in ["B", "O"]]
-        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "13"]]
-        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
-        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
-
-    elif (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == True):
-        destinations_rows = [[row + str(col) for col in range(2, 14)] for row in ["B", "O"]]
-        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "9", "11", "13"]]
-        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
-        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
+    destinations_cols = cell_plate_metadata["col"].min()
 
     destinations_rows = [cell_plate[well] for well in destinations_rows]
     destinations_cols = [cell_plate[well] for well in destinations_cols]
@@ -346,7 +286,7 @@ def run(protocol: protocol_api.ProtocolContext):
                                 v_offset=-5)
     
     pipette_20ul.drop_tip()
-
+ """
 
     
     

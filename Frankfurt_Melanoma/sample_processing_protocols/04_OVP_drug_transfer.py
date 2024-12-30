@@ -132,14 +132,14 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_filtertiprack_20ul", 1)
-    #drug_plate_melanoma = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", protocol.params.melanoma_plate_position)
-    #drug_plate_ovarian = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", protocol.params.ovarian_plate_position)
-    #cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
+    drug_plate_melanoma = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", protocol.params.melanoma_plate_position)
+    drug_plate_ovarian = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", protocol.params.ovarian_plate_position)
+    cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # for local testing
-    drug_plate_melanoma = protocol.load_labware("nest_96_wellplate_200ul_flat", protocol.params.melanoma_plate_position)
-    drug_plate_ovarian = protocol.load_labware("nest_96_wellplate_200ul_flat", protocol.params.ovarian_plate_position)
-    cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 6)
+    #drug_plate_melanoma = protocol.load_labware("nest_96_wellplate_200ul_flat", protocol.params.melanoma_plate_position)
+    #drug_plate_ovarian = protocol.load_labware("nest_96_wellplate_200ul_flat", protocol.params.ovarian_plate_position)
+    #cell_plate = protocol.load_labware("corning_384_wellplate_112ul_flat", 6)
 
     # optional: set liquids
     sample = protocol.define_liquid(name="sample", display_color="#1c03fc",
@@ -204,8 +204,8 @@ def run(protocol: protocol_api.ProtocolContext):
         combination_drugs = drug_list.loc[drug_list.combination == True]
 
         # distribute single drugs
+        protocol.comment(f"Now pipetting single drugs from {drug_panel} plate.")
         for i, drug in single_drugs.iterrows():
-            print(f"Distributing {drug.condition}")
             # get source well
             source = drug_plate_metadata.loc[
                 drug_plate_metadata.condition == drug.condition]
@@ -213,7 +213,6 @@ def run(protocol: protocol_api.ProtocolContext):
 
             # assemble name of source well (opentrons take A1 instead of A01)
             source_well = source.row.values[0] + str(source.col.values[0])
-            print(f"source well: {source_well}")
 
             # collect destination wells
             dest_wells = cell_plate_metadata.loc[
@@ -223,7 +222,7 @@ def run(protocol: protocol_api.ProtocolContext):
                         in dest_wells.iterrows()]
             
             destinations = [cell_plate[well] for well in dest_wells]
-            print(f"Distributing {drug.condition} from well {source_well} "
+            protocol.comment(f"Distributing {drug.condition} from well {source_well} "
                 f"to wells {dest_wells} on 384-well cell plate")
 
             distribute(
@@ -238,6 +237,7 @@ def run(protocol: protocol_api.ProtocolContext):
 
 
         # distribute combination drugs
+        protocol.comment(f"Now pipetting combination drugs from {drug_panel} plate.")
         for i, drug in combination_drugs.iterrows():
             # get source wells
             drug_1 = drug.condition.split(" + ")[0]
@@ -265,6 +265,9 @@ def run(protocol: protocol_api.ProtocolContext):
                         in dest_wells.iterrows()]
 
             destinations = [cell_plate[well] for well in dest_wells]
+
+            protocol.comment(f"Distributing {drug_1} from well {source_well_1} and {drug_2} from well {source_well_2} "
+                f"to wells {dest_wells} on 384-well cell plate")
             
             # iterate over destination sublists and aspirate
             distribute(
