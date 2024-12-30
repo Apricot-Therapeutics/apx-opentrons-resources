@@ -21,6 +21,20 @@ For example, for the OVP protocols, the metadata files are saved at /data/user_s
 scp -i .ssh/ot2_ssh_key "C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v1.3.csv" root@169.254.113.174:/data/user_storage/apricot_data/
 ```
 
+I recently ran this again and scp transfer failed with the following error:
+
+```
+sh: /usr/libexec/sftp-server: not found
+scp: Connection closed
+```
+I haven't completely followed up on it, but it seems to be an issue with the ssh version, see this github issue: https://github.com/Opentrons/opentrons/issues/12910
+
+The workaround for now is to use the -O argument in the scp call:
+
+```
+scp -i .ssh/ot2_ssh_key -O "C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\drug_plate_metadata_v1.3.csv" root@169.254.113.174:/data/user_storage/apricot_data/
+```
+
 If you are trying to give some csv files to your protocol, you have to be a bit sneaky after uploading them to the OT-2. Stupidly, when importing a python script in the software, it will try to load the csv files defined in the script locally - but later on again on the raspberry PI running the OT-2. Current strategy to circumvent is to use the following in the python protocol when reading in the csv files:
 
 ```python
