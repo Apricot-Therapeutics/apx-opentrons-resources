@@ -238,9 +238,15 @@ def run(protocol: protocol_api.ProtocolContext):
     for sample_type in cell_plate_metadata["sample_name"].unique():
 
         current_metadata = cell_plate_metadata.loc[cell_plate_metadata["sample_name"] == sample_type]
+        
+        dest_wells = []
 
-        dest_wells = [[row + str(col) for col in current_metadata.col.unique()] for row in ["A", "B"]]
-        dest_wells = list(itertools.chain.from_iterable(dest_wells))
+        for col in current_metadata.col.unique():
+            if f"C{col:02d}" in current_metadata.well.values:
+                dest_wells.append("A" + str(col))
+            if f"D{col:02d}" in current_metadata.well.values:
+                dest_wells.append("B" + str(col))
+
         destinations = [cell_plate[well] for well in dest_wells]
 
         if sample_type == "patient_1":
