@@ -20,7 +20,6 @@ C19,C,19,patient_2,patient_2_with_OVCAR3,Fluorouracil,False,1,False,30,standard
 C20,C,20,patient_2,patient_2_with_OVCAR3,Durvalumab,False,1,False,0.024,standard
 C21,C,21,patient_2,patient_2_with_OVCAR3,Carboplatin + Pembrolizumab,False,1,True,15/0.034,standard
 C22,C,22,patient_2,patient_2_with_OVCAR3,Staurosporine (low) + Etoposide,False,1,True,0.2/0.5,standard
-D02,D,2,OVCAR3,elution_control,elution_ctrl_cycle_01,False,1,False,,standard
 D03,D,3,patient_1,patient_1_with_OVCAR3,Olaparib,False,1,False,15,standard
 D04,D,4,patient_1,patient_1_with_OVCAR3,Alpelisib,False,1,False,7.5,standard
 D05,D,5,patient_1,patient_1_with_OVCAR3,Durvalumab,False,1,False,0.024,standard
@@ -41,7 +40,7 @@ D19,D,19,patient_2,patient_2_with_OVCAR3,Vinblastine,False,1,False,0.5,standard
 D20,D,20,patient_2,patient_2_with_OVCAR3,Everolimus,False,1,False,5,standard
 D21,D,21,patient_2,patient_2_with_OVCAR3,Mirvetuximab Soravtansine,False,1,False,0.025,standard
 D22,D,22,patient_2,patient_2_with_OVCAR3,DMSO,True,2,False,,standard
-E02,E,2,OVCAR3,elution_control,elution_ctrl_cycle_02,False,1,False,,standard
+E02,E,2,OVCAR3,elution_control,elution_ctrl_cycle_01,False,1,False,,standard
 E03,E,3,patient_1,patient_1_with_OVCAR3,Staurosporine (low) + Etoposide,False,1,True,0.2/0.5,standard
 E04,E,4,patient_1,patient_1_with_OVCAR3,DMSO,True,3,False,,standard
 E05,E,5,patient_1,patient_1_with_OVCAR3,Niraparib,False,2,False,15,standard
@@ -62,7 +61,6 @@ E19,E,19,patient_2,patient_2_with_OVCAR3,Trametinib,False,1,False,2.5,standard
 E20,E,20,patient_2,patient_2_with_OVCAR3,Paclitaxel,False,2,False,0.5,standard
 E21,E,21,patient_2,patient_2_with_OVCAR3,Durvalumab,False,2,False,0.024,standard
 E22,E,22,patient_2,patient_2_with_OVCAR3,Abemaciclib,False,2,False,5,standard
-F02,F,2,OVCAR3,elution_control,elution_ctrl_cycle_03,False,1,False,,standard
 F03,F,3,patient_1,patient_1_with_OVCAR3,Gemcitabine,False,1,False,2.5,standard
 F04,F,4,patient_1,patient_1_with_OVCAR3,Trametinib,False,1,False,2.5,standard
 F05,F,5,patient_1,patient_1_with_OVCAR3,Fluorouracil,False,1,False,30,standard
@@ -83,6 +81,7 @@ F19,F,19,patient_2,patient_2_with_OVCAR3,Vinblastine,False,2,False,0.5,standard
 F20,F,20,patient_2,patient_2_with_OVCAR3,Trastuzumab Deruxtecan,False,2,False,0.025,standard
 F21,F,21,patient_2,patient_2_with_OVCAR3,DMSO,True,4,False,,standard
 F22,F,22,patient_2,patient_2_with_OVCAR3,Carboplatin + Paclitaxel,False,2,True,15/0.5,standard
+G02,G,2,OVCAR3,elution_control,elution_ctrl_cycle_02,False,1,False,,standard
 G03,G,3,patient_1,patient_1_with_OVCAR3,Palbociclib,False,1,False,10,standard
 G04,G,4,patient_1,patient_1_with_OVCAR3,Trastuzumab Deruxtecan,False,2,False,0.025,standard
 G05,G,5,patient_1,patient_1_with_OVCAR3,Dasatinib,False,2,False,2.5,standard
@@ -123,6 +122,7 @@ H19,H,19,patient_2,patient_2_with_OVCAR3,DMSO,True,6,False,,standard
 H20,H,20,patient_2,patient_2_with_OVCAR3,Erlotinib,False,1,False,5,standard
 H21,H,21,patient_2,patient_2_with_OVCAR3,Osimertinib,False,2,False,5,standard
 H22,H,22,patient_2,patient_2_with_OVCAR3,Abemaciclib,False,3,False,5,standard
+I02,I,2,OVCAR3,elution_control,elution_ctrl_cycle_03,False,1,False,,standard
 I03,I,3,patient_1,patient_1_with_OVCAR3,Cediranib,False,3,False,5,standard
 I04,I,4,patient_1,patient_1_with_OVCAR3,Gemcitabine,False,3,False,2.5,standard
 I05,I,5,patient_1,patient_1_with_OVCAR3,Osimertinib,False,2,False,5,standard
