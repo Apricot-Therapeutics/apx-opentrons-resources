@@ -160,13 +160,6 @@ def add_parameters(parameters: protocol_api.Parameters):
     )
 
     parameters.add_bool(
-    variable_name="exclude_experimental_drugs",
-    display_name="Exclude experimental drugs",
-    description="Turn on if the experimental drug set should be excluded.",
-    default=False,
-    )
-
-    parameters.add_bool(
     variable_name="process_full_plate",
     display_name="Process two patient samples",
     description="Turn on if there are two patient samples on the plate (full plate).",
@@ -188,8 +181,8 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
-    reservoir = protocol.load_labware("integra300ml_1_reservoir_300000ul", 5)
-    trash = protocol.load_labware("integra300ml_1_reservoir_300000ul", 9)
+    reservoir = protocol.load_labware("integra150ml_1_reservoir_150000ul", 5)
+    trash = protocol.load_labware("integra150ml_1_reservoir_150000ul", 9)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
     # optional: set liquids
@@ -213,10 +206,6 @@ def run(protocol: protocol_api.ProtocolContext):
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
             cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
-    
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
 
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
@@ -243,6 +232,11 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette.pick_up_tip()
 
     for i in range(0, protocol.params.n_wash):
+        
+        # set well clearance of pipettes
+        pipette.well_bottom_clearance.aspirate = 5
+        pipette.well_bottom_clearance.dispense = 3.5
+        
         distribute(
             volume=60,
             source=reservoir[source_well],
@@ -253,10 +247,14 @@ def run(protocol: protocol_api.ProtocolContext):
             pipette=pipette,
             protocol=protocol,
             residual_dispense_location=reservoir[source_well],
-            residual_dispense_height_from_bottom=3.5,
+            residual_dispense_height_from_bottom=5,
             touch_tip=False,
             ignore_tips=True,
             )
+        
+        # set well clearance of pipettes
+        pipette.well_bottom_clearance.aspirate = 3
+        pipette.well_bottom_clearance.dispense = 5
         
         consolidate(
             volume=60,

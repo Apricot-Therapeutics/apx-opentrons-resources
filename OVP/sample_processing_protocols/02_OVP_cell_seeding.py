@@ -78,9 +78,9 @@ def distribute(volume: int,
             if touch_tip:
                 pipette.touch_tip(radius=touch_tip_radius,
                                   v_offset=touch_tip_v_offset)
-
-        if residual_dispense_location is not None:
-            pipette.dispense(location=residual_dispense_location.bottom(z=residual_dispense_height_from_bottom))
+        if i != len(chunked_dest):
+            if residual_dispense_location is not None:
+                pipette.dispense(location=residual_dispense_location.bottom(z=residual_dispense_height_from_bottom))
         # drop tip
         if ignore_tips == False:
             if (reuse_tips == False) or (i == (len(chunked_dest) -1)):
@@ -119,13 +119,6 @@ def add_parameters(parameters: protocol_api.Parameters):
         {"display_name": "right", "value": "right"},
     ],
     default="right"
-    )
-
-    parameters.add_bool(
-    variable_name="exclude_experimental_drugs",
-    display_name="Exclude experimental drugs",
-    description="Turn on if the experimental drug set should be excluded.",
-    default=False,
     )
 
     parameters.add_bool(
@@ -206,10 +199,6 @@ def run(protocol: protocol_api.ProtocolContext):
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
             cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
-    
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
 
     # load media into reservoir
     reservoir['A' + str(protocol.params.sample_1_col)].load_liquid(liquid=patient_1, volume=5000)
@@ -238,14 +227,15 @@ def run(protocol: protocol_api.ProtocolContext):
     for sample_type in cell_plate_metadata["sample_name"].unique():
 
         current_metadata = cell_plate_metadata.loc[cell_plate_metadata["sample_name"] == sample_type]
-        
+
         dest_wells = []
 
+        start_row_map = {"A": "C", "B": "D"}
+
         for col in current_metadata.col.unique():
-            if f"C{col:02d}" in current_metadata.well.values:
-                dest_wells.append("A" + str(col))
-            if f"D{col:02d}" in current_metadata.well.values:
-                dest_wells.append("B" + str(col))
+            for row in ["A", "B"]:
+                if start_row_map[row] + f"{col:02d}" in current_metadata["well"].values:
+                    dest_wells.append(row + str(col))
 
         destinations = [cell_plate[well] for well in dest_wells]
 
@@ -279,27 +269,15 @@ def run(protocol: protocol_api.ProtocolContext):
         pipette.drop_tip()
 
     # after seeding is done, distribute RPMI to wells adjacent to wells containing media
-    if (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == False):
+    if protocol.params.process_full_plate == True:
         destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
         destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "22"]]
         destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
         destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
 
-    elif (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == True):
-        destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
-        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "9", "11", "19"]]
-        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
-        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
-
-    elif (protocol.params.process_full_plate == False) & (protocol.params.exclude_experimental_drugs == False):
+    elif protocol.params.process_full_plate == False:
         destinations_rows = [[row + str(col) for col in range(2, 14)] for row in ["B", "O"]]
         destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "13"]]
-        destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
-        destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
-
-    elif (protocol.params.process_full_plate == True) & (protocol.params.exclude_experimental_drugs == True):
-        destinations_rows = [[row + str(col) for col in range(2, 14)] for row in ["B", "O"]]
-        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "9", "11", "13"]]
         destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
         destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
 

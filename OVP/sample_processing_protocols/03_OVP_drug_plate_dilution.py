@@ -1,6 +1,18 @@
 from opentrons import protocol_api
 import pandas as pd
 from sys import platform
+import re
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 # metadata
 metadata = {
@@ -29,6 +41,8 @@ def add_parameters(parameters: protocol_api.Parameters):
 
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
+
+    protocol.pause(msg='IMPORTANT: Make sure that 3 ul Durvalumab has been added to well A12 of the drug plate. If not, add it now.')
 
     # load labware
     # TO-DO: change labware to match actual labware used
@@ -73,26 +87,28 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette.well_bottom_clearance.dispense = 1.5
 
     dest_wells = ["A" + str(col) for col in drug_plate_metadata.col.unique()]
+    dest_wells.sort(key=natural_keys)
     destinations = [drug_plate[well] for well in dest_wells]
 
     source_well = "A1"
+
     pipette.transfer(volume=297,
                           source=reservoir[source_well],
-                          dest=destinations[0:5],
+                          dest=destinations[0:4],
                           mix_after=(3, 200),
                           new_tip='always')
     
     source_well = "A2"
     pipette.transfer(volume=297,
                           source=reservoir[source_well],
-                          dest=destinations[5:9],
+                          dest=destinations[4:8],
                           mix_after=(3, 200),
                           new_tip='always')
 
     source_well = "A3"
     pipette.transfer(volume=297,
                      source=reservoir[source_well],
-                     dest=destinations[9:],
+                     dest=destinations[8:],
                      mix_after=(3, 200),
                      new_tip='always')
 

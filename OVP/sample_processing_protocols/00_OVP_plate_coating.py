@@ -22,7 +22,9 @@ def distribute(volume: int,
                residual_dispense_location: Optional[Well] = None,
                n_mix: Optional[int] = None,
                aspirate_rate: float = 1.0,
-               dispense_rate: float = 1.0,):
+               dispense_rate: float = 1.0,
+               reuse_tips=False,
+               ignore_tips=False):
     
     # based on the volume, calculate how often can be pipetted
     n_pipetting_steps = np.floor((300 - residual_volume)/volume) # TO-DO: max volume of pipette
@@ -30,8 +32,12 @@ def distribute(volume: int,
     # chunk up the destinations
     chunked_dest = np.array_split(dest, np.ceil(len(dest)/n_pipetting_steps))
 
-    for sub_list in chunked_dest:
-        pipette.pick_up_tip()
+    for i, sub_list in enumerate(chunked_dest):
+        if ignore_tips == False:
+            if reuse_tips == False:
+                pipette.pick_up_tip()
+            if (reuse_tips == True) & (i == 0):
+                pipette.pick_up_tip()
 
         # mix if required
         if n_mix is not None:
@@ -67,7 +73,9 @@ def distribute(volume: int,
         if residual_dispense_location is not None:
             pipette.dispense(location=residual_dispense_location.bottom(z=residual_dispense_height_from_bottom))
         # drop tip
-        pipette.drop_tip()
+        if ignore_tips == False:
+            if (reuse_tips == False) or (i == (len(chunked_dest) -1)):
+                pipette.drop_tip()
 
 # metadata
 metadata = {
@@ -91,13 +99,6 @@ def add_parameters(parameters: protocol_api.Parameters):
         {"display_name": "right", "value": "right"},
     ],
     default="left"
-    )
-
-    parameters.add_bool(
-    variable_name="exclude_experimental_drugs",
-    display_name="Exclude experimental drugs",
-    description="Turn on if the experimental drug set should be excluded.",
-    default=False,
     )
 
     parameters.add_bool(
@@ -140,10 +141,7 @@ def run(protocol: protocol_api.ProtocolContext):
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
             cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
-    
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
+
 
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
@@ -166,6 +164,8 @@ def run(protocol: protocol_api.ProtocolContext):
 
     source_well = "A1"
 
+    pipette.pick_up_tip()
+
     distribute(
         volume=30,
         source=reservoir[source_well],
@@ -180,8 +180,9 @@ def run(protocol: protocol_api.ProtocolContext):
         residual_dispense_height_from_bottom=1,
         touch_tip=True,
         touch_tip_radius=0.4,
-        touch_tip_v_offset=-5
+        touch_tip_v_offset=-5,
+        ignore_tips=True,
 )
     
 
-
+    pipette.drop_tip()

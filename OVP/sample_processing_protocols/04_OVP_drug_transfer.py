@@ -171,10 +171,11 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # distribute single drugs
     for i, drug in single_drugs.iterrows():
+        print(f"drug is {drug}")
         # get source well
         source = drug_plate_metadata.loc[
             drug_plate_metadata.condition == drug.condition]
-        source = source.loc[source["sample"] == "1000x"]
+        source = source.loc[source["sample"].isin(["1000x", "1000x_ab_drugs"])]
 
         # assemble name of source well (opentrons take A1 instead of A01)
         source_well = source.row.values[0] + str(source.col.values[0])
@@ -210,11 +211,11 @@ def run(protocol: protocol_api.ProtocolContext):
 
         source_1 = drug_plate_metadata.loc[
             drug_plate_metadata.condition == drug_1]
-        source_1 = source_1.loc[source_1["sample"] == "2000x"]
+        source_1 = source_1.loc[source_1["sample"].isin(["2000x", "2000x_ab_drugs"])]
 
         source_2 = drug_plate_metadata.loc[
             drug_plate_metadata.condition == drug_2]
-        source_2 = source_2.loc[source_2["sample"] == "2000x"]
+        source_2 = source_2.loc[source_2["sample"].isin(["2000x", "2000x_ab_drugs"])]
 
         # assemble name of source well (opentrons take A1 instead of A01)
         source_well_1 = source_1.row.values[0] + str(

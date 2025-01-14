@@ -184,7 +184,7 @@ def run(protocol: protocol_api.ProtocolContext):
         dest=destinations,
         aspirate_delay=1.0,
         dispense_delay=1.0,
-        n_mix=1,
+        n_mix=None,
         residual_volume=20,
         pipette=pipette,
         protocol=protocol,

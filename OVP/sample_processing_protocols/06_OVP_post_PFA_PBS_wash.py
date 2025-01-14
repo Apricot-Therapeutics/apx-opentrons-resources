@@ -230,10 +230,6 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette = protocol.load_instrument("p300_multi_gen2", "left",
                                        tip_racks=[tips])
 
-    # set well clearance of pipettes
-    pipette.well_bottom_clearance.aspirate = 3
-    pipette.well_bottom_clearance.dispense = 3.5
-
     dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
     dest_wells = list(itertools.chain.from_iterable(dest_wells))
     destinations = [cell_plate[well] for well in dest_wells]
@@ -256,6 +252,11 @@ def run(protocol: protocol_api.ProtocolContext):
         )
     
     for i in range(0, protocol.params.n_wash):
+
+        # set well clearance of pipettes
+        pipette.well_bottom_clearance.aspirate = 5
+        pipette.well_bottom_clearance.dispense = 3.5
+
         distribute(
             volume=60,
             source=reservoir[source_well],
@@ -267,7 +268,7 @@ def run(protocol: protocol_api.ProtocolContext):
             pipette=pipette,
             protocol=protocol,
             residual_dispense_location=reservoir[source_well],
-            residual_dispense_height_from_bottom=3.5,
+            residual_dispense_height_from_bottom=5,
             touch_tip=False,
             ignore_tips=True,
             )
@@ -276,19 +277,26 @@ def run(protocol: protocol_api.ProtocolContext):
             consolidate_volume = 50
         else:
             consolidate_volume = 60
-        
-        consolidate(
-            volume=consolidate_volume,
-            source=destinations,
-            dest=trash[source_well],
-            aspirate_delay=0,
-            dispense_delay=0,
-            aspirate_rate=0.2,
-            pipette=pipette,
-            protocol=protocol,
-            touch_tip=False,
-            ignore_tips=True,
-            )
+
+        # aspirate, only if not last wash cycle
+        if i != protocol.params.n_wash:
+
+            # set well clearance of pipettes
+            pipette.well_bottom_clearance.aspirate = 3
+            pipette.well_bottom_clearance.dispense = 5
+
+            consolidate(
+                volume=consolidate_volume,
+                source=destinations,
+                dest=trash[source_well],
+                aspirate_delay=0,
+                dispense_delay=0,
+                aspirate_rate=0.2,
+                pipette=pipette,
+                protocol=protocol,
+                touch_tip=False,
+                ignore_tips=True,
+                )
         
     pipette.drop_tip()
     
