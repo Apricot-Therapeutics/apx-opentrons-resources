@@ -94,13 +94,6 @@ def add_parameters(parameters: protocol_api.Parameters):
     )
 
     parameters.add_bool(
-    variable_name="exclude_experimental_drugs",
-    display_name="Exclude experimental drugs",
-    description="Turn on if the experimental drug set should be excluded.",
-    default=False,
-    )
-
-    parameters.add_bool(
     variable_name="process_full_plate",
     display_name="Process two patient samples",
     description="Turn on if there are two patient samples on the plate (full plate).",
@@ -139,11 +132,11 @@ def run(protocol: protocol_api.ProtocolContext):
     # process one or two patient samples
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
-            cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
-    
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
+            (cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3") & 
+            (cell_plate_metadata["experimental_unit"] != "elution_control")]
+    else:
+        cell_plate_metadata = cell_plate_metadata.loc[
+            (cell_plate_metadata["experimental_unit"] != "elution_control")]
 
     # load drugs into 96-well plate
     for i, well in drug_plate_metadata.iterrows():

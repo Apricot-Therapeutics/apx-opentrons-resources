@@ -270,8 +270,8 @@ def run(protocol: protocol_api.ProtocolContext):
 
     # after seeding is done, distribute RPMI to wells adjacent to wells containing media
     if protocol.params.process_full_plate == True:
-        destinations_rows = [[row + str(col) for col in range(2, 23)] for row in ["B", "O"]]
-        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "22"]]
+        destinations_rows = [[row + str(col) for col in range(2, 24)] for row in ["B", "O"]]
+        destinations_cols = [[row + str(col) for row in ["A", "B"]] for col in ["2", "23"]]
         destinations_rows = list(itertools.chain.from_iterable(destinations_rows))
         destinations_cols = list(itertools.chain.from_iterable(destinations_cols))
 

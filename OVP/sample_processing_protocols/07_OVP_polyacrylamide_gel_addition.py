@@ -110,13 +110,6 @@ def add_parameters(parameters: protocol_api.Parameters):
     )
 
     parameters.add_bool(
-    variable_name="exclude_experimental_drugs",
-    display_name="Exclude experimental drugs",
-    description="Turn on if the experimental drug set should be excluded.",
-    default=False,
-    )
-
-    parameters.add_bool(
     variable_name="process_full_plate",
     display_name="Process two patient samples",
     description="Turn on if there are two patient samples on the plate (full plate).",
@@ -153,10 +146,7 @@ def run(protocol: protocol_api.ProtocolContext):
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
             cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
-    
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[cell_plate_metadata.drug_panel == "standard"]
+
 
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
@@ -173,8 +163,15 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette.well_bottom_clearance.aspirate = 1
     pipette.well_bottom_clearance.dispense = 4
 
-    dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
-    dest_wells = list(itertools.chain.from_iterable(dest_wells))
+    dest_wells = []
+
+    start_row_map = {"A": "C", "B": "D"}
+
+    for col in cell_plate_metadata.col.unique():
+        for row in ["A", "B"]:
+            if start_row_map[row] + f"{col:02d}" in cell_plate_metadata["well"].values:
+                dest_wells.append(row + str(col))
+
     destinations = [cell_plate[well] for well in dest_wells]
 
     source_well = "A1"

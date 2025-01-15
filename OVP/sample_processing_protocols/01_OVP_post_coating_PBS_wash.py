@@ -223,8 +223,15 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette.well_bottom_clearance.aspirate = 3
     pipette.well_bottom_clearance.dispense = 3.5
 
-    dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
-    dest_wells = list(itertools.chain.from_iterable(dest_wells))
+    dest_wells = []
+
+    start_row_map = {"A": "C", "B": "D"}
+
+    for col in cell_plate_metadata.col.unique():
+        for row in ["A", "B"]:
+            if start_row_map[row] + f"{col:02d}" in cell_plate_metadata["well"].values:
+                dest_wells.append(row + str(col))
+
     destinations = [cell_plate[well] for well in dest_wells]
 
     source_well = "A1"

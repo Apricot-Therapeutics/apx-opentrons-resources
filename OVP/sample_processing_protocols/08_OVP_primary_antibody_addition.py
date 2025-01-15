@@ -71,8 +71,8 @@ def distribute(volume: int,
         pipette.drop_tip()
 # metadata
 metadata = {
-    "protocolName": "OVP Antibody Addition",
-    "description": """This protocol is used to transfer antibodies from a
+    "protocolName": "OVP Primary Antibody Addition",
+    "description": """This protocol is used to transfer primary antibodies from a
      pre-prepared 96-well plate to a 384 well plate containing patient
      cells (in 30 ul of media).""",
     "author": "Adrian Tschan"
@@ -94,11 +94,15 @@ def add_parameters(parameters: protocol_api.Parameters):
     default="left"
     )
 
-    parameters.add_bool(
-    variable_name="exclude_experimental_drugs",
-    display_name="Exclude experimental drugs",
-    description="Turn on if the experimental drug set should be excluded.",
-    default=False,
+    parameters.add_str(
+    variable_name="pipette_position_20ul",
+    display_name="p20 single-channel position",
+    description="Which mount is the single-channel 20 µL pipette mounted on?",
+    choices=[
+        {"display_name": "left", "value": "left"},
+        {"display_name": "right", "value": "right"},
+    ],
+    default="right"
     )
 
     parameters.add_bool(
@@ -117,6 +121,19 @@ def add_parameters(parameters: protocol_api.Parameters):
     default=1,
     )
 
+    parameters.add_int(
+    variable_name="cycle",
+    display_name="4i Cycle",
+    description="Indicate which 4i cycle of the OVP protocol is being processed.",
+    default=0,
+    choices=[
+        {"display_name": "cycle 00", "value": 0},
+        {"display_name": "cycle 01", "value": 1},
+        {"display_name": "cycle 02", "value": 2},
+        {"display_name": "cycle 03", "value": 3}
+    ]
+)
+
 # protocol run function
 def run(protocol: protocol_api.ProtocolContext):
 
@@ -125,6 +142,7 @@ def run(protocol: protocol_api.ProtocolContext):
     # load labware
     # TO-DO: change labware to match actual labware used
     tips = protocol.load_labware("opentrons_96_tiprack_300ul", 1)
+    tips_20ul = protocol.load_labware("opentrons_96_tiprack_20ul", 4)
     antibody_plate = protocol.load_labware("greinermasterblock_96_wellplate_2000ul", 5)
     cell_plate = protocol.load_labware("greiner_bio_one_384_well_plate_100ul_reduced_well_size", 6)
 
@@ -141,24 +159,24 @@ def run(protocol: protocol_api.ProtocolContext):
     # load some metadata we need later
     if platform == "win32":
         # load the drug layout on drug master plate and final 384-well plate
-        cell_plate_metadata = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v2.0.csv")
+        cell_plate_metadata_orig = pd.read_csv(r"C:\Users\OT-Operator\Documents\OT-2_protocols\APx_opentrons_resources\OVP\metadata\plate_metadata_v2.0.csv")
     elif platform == "linux":
         # load the drug layout on drug master plate and final 384-well plate
-        cell_plate_metadata = pd.read_csv("/data/user_storage/apricot_data/OVP/plate_metadata_v2.0.csv")
+        cell_plate_metadata_orig = pd.read_csv("/data/user_storage/apricot_data/OVP/plate_metadata_v2.0.csv")
 
-    # process one or two patient samples
+        # process one or two patient samples
     if protocol.params.process_full_plate == False:
-        cell_plate_metadata = cell_plate_metadata.loc[
-            cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
+        cell_plate_metadata = cell_plate_metadata_orig.loc[
+            (cell_plate_metadata_orig["experimental_unit"] != "patient_2_with_OVCAR3") & 
+            (cell_plate_metadata_orig["experimental_unit"] != "elution_control")]
+    else:
+        cell_plate_metadata = cell_plate_metadata_orig.loc[
+            (cell_plate_metadata_orig["experimental_unit"] != "elution_control")]
 
     # load antibodies into 96-well plate
     for well in antibody_plate.columns()[(protocol.params.antibody_source_column - 1)]:
         well.load_liquid(liquid=antibodies, volume=650)
 
-    # include or exclude experimental drugs
-    if protocol.params.exclude_experimental_drugs:
-        cell_plate_metadata = cell_plate_metadata.loc[
-            cell_plate_metadata.drug_panel == "standard"]
     # load samples
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
@@ -168,14 +186,25 @@ def run(protocol: protocol_api.ProtocolContext):
     pipette = protocol.load_instrument("p300_multi_gen2",
                                        protocol.params.pipette_position,
                                        tip_racks=[tips])
+    
+    pipette_20ul = protocol.load_instrument("p20_single_gen2", 
+                                       protocol.params.pipette_position_20ul,
+                                       tip_racks=[tips_20ul])
 
     # set well clearance of pipettes
     pipette.well_bottom_clearance.aspirate = 1.0
     pipette.well_bottom_clearance.dispense = 3.0
 
     source_well = 'A' + str(protocol.params.antibody_source_column)
-    dest_wells = [[row + str(col) for col in cell_plate_metadata.col.unique()] for row in ["A", "B"]]
-    dest_wells = list(itertools.chain.from_iterable(dest_wells))
+    dest_wells = []
+
+    start_row_map = {"A": "C", "B": "D"}
+
+    for col in cell_plate_metadata.col.unique():
+        for row in ["A", "B"]:
+            if start_row_map[row] + f"{col:02d}" in cell_plate_metadata["well"].values:
+                dest_wells.append(row + str(col))
+
     destinations = [cell_plate[well] for well in dest_wells]
 
     distribute(
@@ -195,3 +224,39 @@ def run(protocol: protocol_api.ProtocolContext):
         touch_tip_radius=0.4,
         touch_tip_v_offset=-5
     )
+    
+    # after antibodies have been dispensed, dispense the elution control wells
+
+    cycle_well_dict = {0: "C2",
+                       1: "E2",
+                       2: "G2",
+                       3: "I2"}
+    
+    source = antibody_plate['B' + str(protocol.params.antibody_source_column)]
+    destination = cell_plate[cycle_well_dict[protocol.params.cycle]]
+
+    for i in range(0, 2):
+            
+            pipette_20ul.pick_up_tip()
+    
+            pipette_20ul.aspirate(
+                volume=15,
+                location=source,
+                rate=1.0,
+            )
+
+            pipette_20ul.dispense(
+                volume=15,
+                location=destination,
+                rate=1.0,
+            )
+
+            protocol.delay(seconds=1.0)
+
+            pipette_20ul.touch_tip(radius=0.4,
+                                v_offset=-5)
+            
+            pipette_20ul.drop_tip()
+
+
+    
