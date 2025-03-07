@@ -146,14 +146,20 @@ def run(protocol: protocol_api.ProtocolContext):
     if protocol.params.process_full_plate == False:
         cell_plate_metadata = cell_plate_metadata.loc[
             cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
-    
+        
 
     for i, well in cell_plate_metadata.iterrows():
         well = cell_plate[well.row + str(well.col)]
         well.load_liquid(liquid=sample, volume=40)
 
     # load media into reservoir
-    reservoir['A1'].load_liquid(liquid=PFA, volume=7000)
+    reservoir['A1'].load_liquid(liquid=PFA, volume=8000)
+
+
+    # fill another column of the reservoir if whole plate is processed
+    if protocol.params.process_full_plate:
+        reservoir['A2'].load_liquid(liquid=PFA, volume=8000)
+
 
     # initialize pipette
     pipette = protocol.load_instrument("p300_multi_gen2", "left",

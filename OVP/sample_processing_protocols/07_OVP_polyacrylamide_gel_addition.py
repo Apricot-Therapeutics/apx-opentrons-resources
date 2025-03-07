@@ -153,7 +153,11 @@ def run(protocol: protocol_api.ProtocolContext):
         well.load_liquid(liquid=sample, volume=40)
 
     # load media into reservoir
-    reservoir['A1'].load_liquid(liquid=PAA, volume=4000)
+    reservoir['A1'].load_liquid(liquid=PAA, volume=10000)
+
+    # if whole plate is processed, fill PAA solution into A2 as well
+    if protocol.params.process_full_plate:
+        reservoir['A2'].load_liquid(liquid=PAA, volume=10000)
 
     # initialize pipette
     pipette = protocol.load_instrument("p300_multi_gen2", "left",

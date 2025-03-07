@@ -201,13 +201,13 @@ def run(protocol: protocol_api.ProtocolContext):
             cell_plate_metadata["experimental_unit"] != "patient_2_with_OVCAR3"]
 
     # load media into reservoir
-    reservoir['A' + str(protocol.params.sample_1_col)].load_liquid(liquid=patient_1, volume=5000)
-    reservoir['A' + str(protocol.params.cell_line_col)].load_liquid(liquid=ovcar3, volume=5000)
+    reservoir['A' + str(protocol.params.sample_1_col)].load_liquid(liquid=patient_1, volume=6000)
+    reservoir['A' + str(protocol.params.cell_line_col)].load_liquid(liquid=ovcar3, volume=2000)
     reservoir['A' + str(protocol.params.rpmi_col)].load_liquid(liquid=rpmi, volume=5000)
 
     # if second patient sample is provided, include it:
     if protocol.params.process_full_plate:
-        reservoir['A' + str(protocol.params.sample_2_col)].load_liquid(liquid=patient_2, volume=5000)
+        reservoir['A' + str(protocol.params.sample_2_col)].load_liquid(liquid=patient_2, volume=6000)
 
     # initialize pipette
     pipette = protocol.load_instrument("p300_multi_gen2", 

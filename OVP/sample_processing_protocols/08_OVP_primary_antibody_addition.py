@@ -174,8 +174,11 @@ def run(protocol: protocol_api.ProtocolContext):
             (cell_plate_metadata_orig["experimental_unit"] != "elution_control")]
 
     # load antibodies into 96-well plate
-    for well in antibody_plate.columns()[(protocol.params.antibody_source_column - 1)]:
-        well.load_liquid(liquid=antibodies, volume=650)
+    for well in antibody_plate.columns()[(protocol.params.antibody_source_column - 1)][1:-1]:
+        if protocol.params.process_full_plate == False:
+            well.load_liquid(liquid=antibodies, volume=700)
+        else:
+            well.load_liquid(liquid=antibodies, volume=1300)
 
     # load samples
     for i, well in cell_plate_metadata.iterrows():
